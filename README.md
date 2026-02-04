@@ -1,38 +1,49 @@
-# InterVU - Email Validation System
+InterVU – Automated Interview Preparation System
 
-This project implements a real-time email validation system for the InterVU application.
+InterVU is a web-based interview preparation platform designed to help students and job seekers practice interviews, build professional resumes, and receive interview guidance through an AI-powered assistant. The system provides an interactive environment for improving communication skills and interview readiness.
 
-## Features
+Features
 
-- Real-time email validation using Abstract API
-- Detects fake, disposable, and invalid email addresses
-- Password strength checking with visual feedback
-- User-friendly interface with detailed validation messages
+AI-generated interview questions with real-time feedback
 
-## How to Use
+Speech-based interview practice using speech-to-text
 
-Simply open `register-new.html` or `login-new.html` in your browser to use the application.
+Resume builder with multiple templates and PDF download
 
-## How It Works
+Interview assistance chatbot for tips and guidance
 
-1. User fills out the registration form
-2. Email is validated in real-time using Abstract API
-   - Checks if the email format is valid
-   - Verifies that the domain has valid MX records
-   - Detects disposable/temporary email addresses
-   - Identifies role-based emails (admin@, info@, etc.)
-3. Password strength is checked in real-time with visual feedback
-4. After successful validation, the user account is created
-5. User can then log in with their credentials
+Secure user authentication with email verification
 
-## Technologies Used
+Tech Stack
 
-- Frontend: HTML, CSS, JavaScript
-- Email Validation: Abstract API (Key: ac9c597b644a44ddbfd0eb1692e05851)
-- Local Storage: For storing user data
+Frontend: HTML, CSS, JavaScript
 
-## Notes
+Backend & Database: Supabase
 
-- This is a client-side only implementation
-- User data is stored in the browser's localStorage
-- In a production environment, you would want to add server-side validation and a proper database
+AI & APIs: Together.ai, Abstract API
+
+Tools: Speech-to-Text APIs, jsPDF
+
+System Overview
+
+Users can practice interviews, generate resumes, and interact with a chatbot through a single dashboard. Interview responses are analyzed instantly, resumes are generated dynamically, and guidance is provided in real time.
+
+Future Scope
+
+VR-based interview simulations
+
+Multilingual support
+
+Emotion and sentiment analysis
+
+Mobile application development
+
+Contributors
+
+Giragani Varshini
+
+Kashish Agarwal
+
+M. Ruthvik
+
+Naga Vamshi
