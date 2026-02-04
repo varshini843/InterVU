@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterVU - Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    
+    .container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 350px;
+    }
+    
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    .register-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+    
+    #message {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    
+    .success-message {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    
+    .error-message {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Login</h1>
+    <div id="message" style="display: none;"></div>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+        <div class="error" id="emailError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required>
+        <div class="error" id="passwordError"></div>
+      </div>
+      
+      <button type="submit" id="loginButton">Login</button>
+    </form>
+    
+    <div class="register-link">
+      Don't have an account? <a href="basic-register.html">Register</a>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Initialize Supabase client
+    const supabaseUrl = 'https://mcvjvsprehdetbbcfjph.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdmp2c3ByZWhkZXRiYmNmanBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxNDkyMjAsImV4cCI6MjA2NDcyNTIyMH0.ptvadATEgnl0D7HbNDWW3kQxzWS1LSfeCKeRGay1-Pg';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // DOM elements
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginButton');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const messageDiv = document.getElementById('message');
+    
+    // Check if user just registered
+    document.addEventListener('DOMContentLoaded', function() {
+      const registeredEmail = localStorage.getItem('registeredEmail');
+      
+      if (registeredEmail) {
+        emailInput.value = registeredEmail;
+        showMessage('Registration successful! Please log in.', 'success');
+        
+        // Clear the stored email
+        localStorage.removeItem('registeredEmail');
+      }
+    });
+    
+    // Handle form submission
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Clear previous errors
+      emailError.textContent = '';
+      passwordError.textContent = '';
+      
+      // Get form values
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      
+      // Basic validation
+      let isValid = true;
+      
+      if (!email) {
+        emailError.textContent = 'Email is required';
+        isValid = false;
+      }
+      
+      if (!password) {
+        passwordError.textContent = 'Password is required';
+        isValid = false;
+      }
+      
+      if (!isValid) return;
+      
+      // Disable button
+      loginButton.disabled = true;
+      loginButton.textContent = 'Logging in...';
+      
+      try {
+        // Sign in with Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        
+        console.log('Login successful:', data);
+        
+        // Store user data
+        localStorage.setItem('user', JSON.stringify({
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.user_metadata?.full_name || 'User'
+        }));
+        
+        // Show success message
+        showMessage('Login successful! Redirecting...', 'success');
+        
+        // Redirect to index page
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        
+        if (error.message.includes('Invalid login credentials')) {
+          showMessage('Invalid email or password', 'error');
+        } else if (error.message.includes('Email not confirmed')) {
+          // Try to bypass email confirmation
+          try {
+            const { data, error: signUpError } = await supabase.auth.signUp({
+              email,
+              password
+            });
+            
+            if (!signUpError) {
+              // Try signing in again
+              const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+              
+              if (!signInError) {
+                // Store user data
+                localStorage.setItem('user', JSON.stringify({
+                  id: signInData.user.id,
+                  email: signInData.user.email,
+                  name: signInData.user.user_metadata?.full_name || 'User'
+                }));
+                
+                // Show success message
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                // Redirect to index page
+                setTimeout(() => {
+                  window.location.href = 'index.html';
+                }, 1500);
+                return;
+              }
+            }
+          } catch (bypassError) {
+            console.error('Bypass error:', bypassError);
+          }
+          
+          showMessage('Email not confirmed. Please try again.', 'error');
+        } else {
+          showMessage('Login failed: ' + error.message, 'error');
+        }
+      } finally {
+        // Re-enable button
+        loginButton.disabled = false;
+        loginButton.textContent = 'Login';
+      }
+    });
+    
+    // Show message
+    function showMessage(text, type) {
+      messageDiv.textContent = text;
+      messageDiv.style.display = 'block';
+      
+      // Clear any existing classes
+      messageDiv.className = '';
+      
+      // Add appropriate class
+      if (type === 'success') {
+        messageDiv.classList.add('success-message');
+      } else if (type === 'error') {
+        messageDiv.classList.add('error-message');
+      } else {
+        // Default style for info
+        messageDiv.style.backgroundColor = '#d9edf7';
+        messageDiv.style.color = '#31708f';
+      }
+    }
+  </script>
+</body>
+</html>

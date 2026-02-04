@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InterVU - AI-Powered Interview Practice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="analysis-feedback.css" rel="stylesheet" />
+  <style>
+    /* Color theme and layout styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    nav {
+      background: #fff;
+      padding: 20px 40px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #ff4d6d;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links a {
+      color: #555;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover {
+      color: #ff4d6d;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 30px;
+      flex-grow: 1;
+    }
+    .left, .right {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      padding: 30px;
+    }
+    .left {
+      flex: 1 1 500px;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+    }
+    .right {
+      flex: 1 1 300px;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    select, input, button, textarea {
+      width: 100%;
+      margin-top: 10px;
+      font-size: 1rem;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-family: 'Poppins', sans-serif;
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    button {
+      background: #ff4d6d;
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover:not(:disabled) {
+      background: #e03f5b;
+    }
+    button:disabled {
+      background: #ffc1cc;
+      cursor: not-allowed;
+    }
+    #questionBox {
+      font-size: 1.1rem;
+      margin-top: 20px;
+      font-weight: 600;
+      color: #ff4d6d;
+      min-height: 60px;
+      line-height: 1.4;
+      transition: opacity 0.3s ease;
+    }
+    #feedbackBox {
+      margin-top: 20px;
+      white-space: pre-line;
+      font-size: 0.95rem;
+      color: #555;
+      min-height: 50px;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #ff4d6d;
+      transition: opacity 0.3s ease;
+    }
+    
+    /* Smooth transitions for all UI elements */
+    .answer-mode, #answerInput, #recordingControls, #webcam, #recordedVideo {
+      transition: all 0.3s ease;
+    }
+    
+    /* Improved button styles */
+    button {
+      background: #ff4d6d;
+      color: white;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      padding: 12px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    button:hover:not(:disabled) {
+      background: #e03f5b;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    video {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 12px;
+      background: #000;
+      margin-top: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    #micStatus {
+      margin-top: 10px;
+      font-weight: 600;
+      color: #ff4d6d;
+      user-select: none;
+    }
+    .answer-mode {
+      margin-top: 20px;
+      font-weight: 600;
+    }
+    
+    .mode-selector {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+      background: #f0f0f0;
+      border-radius: 10px;
+      padding: 5px;
+    }
+    
+    .mode-option {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: transparent;
+      text-align: center;
+    }
+    
+    .mode-option.active {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .mode-option:hover:not(.active) {
+      background: rgba(255,255,255,0.5);
+    }
+    
+    .mode-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .mode-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .mode-label {
+      font-weight: 500;
+      color: #333;
+    }
+    #recordingControls {
+      margin-top: 15px;
+      display: none;
+    }
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+    #progressIndicator {
+      height: 100%;
+      background: #4caf50;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    #questionCounter {
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 5px;
+      text-align: right;
+    }
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      background: #e6f7ff;
+      color: #0066cc;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+    }
+    .ai-badge svg {
+      margin-right: 4px;
+      width: 14px;
+      height: 14px;
+    }
+    .tips-container {
+      margin-top: 20px;
+      background: #fff9e6;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 0.9rem;
+    }
+    .tips-container h3 {
+      color: #ff8c00;
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+    .tips-container ul {
+      padding-left: 20px;
+    }
+    .tips-container li {
+      margin-bottom: 5px;
+    }
+    
+    /* Real-time feedback styles */
+    .real-time-container {
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #f0f8ff;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      border: 1px solid #cce5ff;
+      transition: all 0.3s ease;
+    }
+    
+    .real-time-container h3 {
+      margin-bottom: 8px;
+      color: #0066cc;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .real-time-container h3::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: #4caf50;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+    
+    .feedback-section {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .feedback-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .feedback-item {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .feedback-item::before {
+      content: "•";
+      margin-right: 5px;
+    }
+    
+    .feedback-positive {
+      color: #4caf50;
+    }
+    
+    .feedback-warning {
+      color: #ff9800;
+    }
+    
+    .feedback-negative {
+      color: #f44336;
+    }
+    
+    .feedback-neutral {
+      color: #607d8b;
+    }
+    
+    .feedback-tip {
+      color: #2196f3;
+    }
+    
+    /* Enhanced analysis styling */
+    .analysis-content {
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #2196f3;
+      margin-top: 15px;
+    }
+    
+    .analysis-content h3 {
+      color: #2196f3;
+      margin-top: 15px;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    
+    .analysis-content ul {
+      padding-left: 20px;
+    }
+    
+    .analysis-content ol {
+      padding-left: 20px;
+    }
+    
+    .analysis-content li {
+      margin-bottom: 5px;
+    }
+    
+    /* Feedback containers */
+    .feedback-container {
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+      border-left: 3px solid #2196f3;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .feedback-container h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #2196f3;
+      display: flex;
+      align-items: center;
+    }
+    
+    .feedback-container h3::before {
+      content: "📊";
+      margin-right: 8px;
+      font-size: 18px;
+    }
+    
+    /* Analysis content styling */
+    .analysis-content {
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid #2196f3;
+      margin-top: 15px;
+    }
+    
+    .analysis-content h3 {
+      color: #2196f3;
+      margin-top: 15px;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    
+    .analysis-content ul {
+      padding-left: 20px;
+    }
+    
+    .analysis-content ol {
+      padding-left: 20px;
+    }
+    
+    .analysis-content li {
+      margin-bottom: 5px;
+    }
+    
+    /* Loading message */
+    .loading-message {
+      padding: 15px;
+      background-color: #e3f2fd;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .progress-indicator {
+      width: 100%;
+      height: 4px;
+      background-color: #bbdefb;
+      border-radius: 2px;
+      margin-top: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-indicator:after {
+      content: '';
+      position: absolute;
+      width: 30%;
+      height: 100%;
+      background-color: #2196f3;
+      border-radius: 2px;
+      animation: progress 1.5s infinite ease-in-out;
+    }
+    
+    @keyframes progress {
+      0% { left: -30%; }
+      100% { left: 100%; }
+    }
+    
+    /* Error and warning messages */
+    .error-message {
+      background-color: #ffebee;
+      border-left: 4px solid #f44336;
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    
+    .error-message h3 {
+      color: #d32f2f;
+      margin-top: 0;
+    }
+    
+    .warning-message {
+      background-color: #fff8e1;
+      border-left: 4px solid #ffc107;
+      padding: 10px 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    
+    .loading-message {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .progress-indicator {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      margin-left: 10px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Analysis content */
+    .analysis-content {
+      white-space: pre-line;
+    }
+    
+    /* Animation for loading indicator */
+    @keyframes progress {
+      0% { left: -30%; }
+      100% { left: 100%; }
+    }
+    
+    /* Debug log */
+    #api-debug-log {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background-color: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      max-width: 400px;
+      max-height: 200px;
+      overflow: auto;
+      z-index: 9999;
+      font-size: 12px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div>InterVU</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      
+      <a href="index.html#contact">Contact</a>
+      <a href="login.html">Login</a>
+    </div>
+  </nav>
+  <main>
+    <section class="left" aria-label="Interview question section">
+      <label for="careerSelect">Choose a Role:</label>
+      <select id="careerSelect" aria-required="true" aria-describedby="questionBox">
+        <option value="" disabled selected>-- Select Role --</option>
+        <option value="Software Developer">Software Developer</option>
+        <option value="Data Analyst">Data Analyst</option>
+        <option value="Product Manager">Product Manager</option>
+        <option value="Graphic Designer">Graphic Designer</option>
+        <option value="Digital Marketing Specialist">Digital Marketing Specialist</option>
+        <option value="Customer Support">Customer Support</option>
+        <option value="HR Manager">HR Manager</option>
+        <option value="Business Analyst">Business Analyst</option>
+        <option value="Quality Assurance Tester">Quality Assurance Tester</option>
+        <option value="Sales Executive">Sales Executive</option>
+        <option value="Content Writer">Content Writer</option>
+        <option value="UX/UI Designer">UX/UI Designer</option>
+        <option value="Project Manager">Project Manager</option>
+        <option value="DevOps Engineer">DevOps Engineer</option>
+        <option value="Data Scientist">Data Scientist</option>
+        <option value="Network Administrator">Network Administrator</option>
+        <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+        <option value="Financial Analyst">Financial Analyst</option>
+        <option value="Social Media Manager">Social Media Manager</option>
+      </select>
+
+      <div class="progress-container">
+        <div id="progressIndicator"></div>
+      </div>
+      <div id="questionCounter"></div>
+
+      <div class="answer-mode" aria-label="Answer mode selection">
+        <div class="mode-selector">
+          <label class="mode-option active">
+            <input type="radio" name="answerMode" value="text" checked />
+            <span class="mode-icon">📝</span>
+            <span class="mode-label">Text Answer</span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="answerMode" value="record" />
+            <span class="mode-icon">🎥</span>
+            <span class="mode-label">Video Answer</span>
+          </label>
+        </div>
+      </div>
+
+      <div id="recordingControls">
+        <button type="button" id="startRecordingBtn">Start Recording</button>
+        <button type="button" id="stopRecordingBtn" disabled>Stop Recording</button>
+      </div>
+
+      <div id="questionBox" role="region" aria-live="polite">Please select a career to begin the interview.</div>
+      
+      <div class="ai-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+        </svg>
+        AI-generated questions tailored to your selected role
+      </div>
+
+      <textarea id="answerInput" placeholder="Type your answer here..." aria-label="Answer input" style="margin-top: 15px;"></textarea>
+
+      <button id="submitBtn" style="margin-top: 20px;">Submit Answer</button>
+      <button id="nextBtn" style="margin-top: 10px;" disabled>Next Question</button>
+
+      <div id="feedbackBox" role="region" aria-live="polite" aria-atomic="true"></div>
+    </section>
+
+    <aside class="right" aria-label="Video and interview tips">
+      <video id="webcam" autoplay muted playsinline aria-label="Webcam video feed" style="display:none; width:100%; max-width:300px; border-radius:12px; background:#000; margin-top:10px;"></video>
+      <video id="recordedVideo" controls playsinline aria-label="Recorded video" style="display:none; width:100%; max-width:300px; border-radius:12px; background:#000; margin-top:10px;"></video>
+      
+      <div class="tips-container">
+        <h3>Interview Tips</h3>
+        <ul>
+          <li>Use the STAR method (Situation, Task, Action, Result) for behavioral questions</li>
+          <li>Speak clearly and at a moderate pace</li>
+          <li>Maintain good posture and eye contact</li>
+          <li>Provide specific examples from your experience</li>
+          <li>Ask clarifying questions if needed</li>
+          <li>Show enthusiasm for the role</li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Load our API implementations and custom interview.js file -->
+  <script src="config.js"></script>
+  <script>
+    // Ensure CONFIG is available globally
+    if (typeof CONFIG !== 'undefined') {
+      window.CONFIG = CONFIG;
+      console.log("CONFIG initialized successfully");
+    } else {
+      console.warn("CONFIG not found, will try to initialize later");
+    }
+  </script>
+  <!-- Supabase proxy for Together API (fixes CORS issues) -->
+  <script src="supabase-together-proxy.js"></script>
+  <script src="together-api.js"></script>
+  <script src="simple-together.js"></script>
+  <script src="ml-analysis.js"></script>
+  <script src="enhanced-analysis.js"></script>
+  <script src="direct-together-analysis.js"></script>
+  <script src="video-fix.js"></script>
+  <script src="clean-interview.js"></script>
+  <!-- Direct API analysis script (overrides all other analysis functions) -->
+  <script src="direct-api-analysis.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if user is logged in
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      const navLinks = document.querySelector('.nav-links');
+      
+      if (currentUser && navLinks) {
+        // Add dashboard link if user is logged in
+        const dashboardLink = document.createElement('a');
+        dashboardLink.href = 'dashboard-new.html';
+        dashboardLink.textContent = 'Dashboard';
+        navLinks.appendChild(dashboardLink);
+        
+        // Add logout link
+        const logoutLink = document.createElement('a');
+        logoutLink.href = '#';
+        logoutLink.textContent = 'Logout';
+        logoutLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          localStorage.removeItem('intervuCurrentUser');
+          window.location.href = 'login.html';
+        });
+        navLinks.appendChild(logoutLink);
+        
+        // Track interview activity
+        trackInterviewActivity(currentUser.email);
+      }
+    });
+    
+    // Track interview activity
+    function trackInterviewActivity(userEmail) {
+      // Use the activity tracker to record this interview
+      const details = {
+        role: document.getElementById('careerSelect').value || 'General'
+      };
+      
+      // Track the activity and get the ID
+      const interviewId = trackUserActivity('interview', details);
+      
+      // Start tracking duration
+      const durationInterval = updateActivityDuration('interview', interviewId);
+      
+      // Handle page unload
+      window.addEventListener('beforeunload', function() {
+        clearInterval(durationInterval);
+      });
+    }
+  </script>
+</body>
+</html>

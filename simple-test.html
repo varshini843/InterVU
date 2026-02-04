@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Supabase Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #ff4d6d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simple Supabase Test</h1>
+  
+  <button id="testBtn">Test Connection</button>
+  
+  <div id="result">Click the button to test the connection.</div>
+  
+  <!-- Import Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    document.getElementById('testBtn').addEventListener('click', async () => {
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = 'Testing connection...';
+      
+      try {
+        // Supabase configuration
+        const SUPABASE_URL = 'https://mcvjvsprehdetbbcfjph.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdmp2c3ByZWhkZXRiYmNmanBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxNDkyMjAsImV4cCI6MjA2NDcyNTIyMH0.ptvadATEgnl0D7HbNDWW3kQxzWS1LSfeCKeRGay1-Pg';
+        
+        // Initialize the Supabase client
+        const { createClient } = supabase;
+        const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Test the connection by getting the current session
+        const { data, error } = await client.auth.getSession();
+        
+        if (error) {
+          resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+        } else {
+          resultDiv.innerHTML = `<p style="color: green;">Connection successful!</p>`;
+          resultDiv.innerHTML += `<p>Session: ${data.session ? 'Active' : 'None'}</p>`;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color: red;">Exception: ${err.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterVU - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reset & Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f8f9fc;
+      color: #5a5c69;
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: #ff4d6d;
+      background: linear-gradient(180deg, #ff4d6d 10%, #e63b5f 100%);
+      color: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s;
+      z-index: 100;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(255, 77, 109, 0.15);
+    }
+    
+    .sidebar-brand {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-brand i {
+      margin-right: 0.5rem;
+      font-size: 1.1rem;
+    }
+    
+    .sidebar-divider {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      margin: 0 1rem 1rem;
+    }
+    
+    .sidebar-heading {
+      padding: 0 1rem;
+      font-weight: 700;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .nav-item {
+      position: relative;
+    }
+    
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    
+    .nav-link i {
+      margin-right: 0.5rem;
+      font-size: 0.85rem;
+      width: 1.5rem;
+      text-align: center;
+    }
+    
+    .nav-link:hover, .nav-link.active {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 0.35rem;
+    }
+    
+    .nav-link.active {
+      font-weight: 600;
+    }
+    
+    .sidebar-toggle {
+      position: absolute;
+      right: -0.75rem;
+      top: 1rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: #ff4d6d;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(255, 77, 109, 0.15);
+      z-index: 1;
+    }
+    
+    /* Main Content */
+    .content-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    
+    /* Topbar */
+    .topbar {
+      height: 60px;
+      background: white;
+      box-shadow: 0 0.1rem 0.5rem 0 rgba(58, 59, 69, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .topbar-items {
+      display: flex;
+      align-items: center;
+    }
+    
+    .topbar-divider {
+      width: 0;
+      border-right: 1px solid #e3e6f0;
+      height: 2rem;
+      margin: 0 1rem;
+    }
+    
+    .topbar-item {
+      position: relative;
+      margin-left: 0.5rem;
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ff4d6d;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      box-shadow: 0 0.1rem 0.5rem rgba(255, 77, 109, 0.2);
+    }
+    
+    .user-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #5a5c69;
+    }
+    
+    .user-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 200px;
+      background: white;
+      border-radius: 0.35rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+      padding: 0.5rem 0;
+      margin-top: 0.5rem;
+      display: none;
+      z-index: 10;
+    }
+    
+    .user-menu.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+    
+    .user-menu-item {
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #5a5c69;
+      transition: all 0.2s;
+    }
+    
+    .user-menu-item i {
+      width: 1.5rem;
+      margin-right: 0.5rem;
+      text-align: center;
+    }
+    
+    .user-menu-item:hover {
+      background: #f8f9fc;
+      color: #ff4d6d;
+      padding-left: 1.75rem;
+    }
+    
+    .user-menu-divider {
+      height: 0;
+      border-top: 1px solid #e3e6f0;
+      margin: 0.5rem 0;
+    }
+    
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 1.75rem 2rem;
+      overflow-y: auto;
+      background-color: #f8f9fc;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .main-content > .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -0.625rem;
+      width: 100%;
+    }
+    
+    .main-content > .row > .col {
+      padding: 0 0.625rem;
+      flex: 1;
+      min-width: 0;
+      width: 50%;
+    }
+    
+    @media (max-width: 992px) {
+      .main-content > .row {
+        flex-direction: column;
+      }
+      
+      .main-content > .row > .col {
+        width: 100%;
+      }
+    }
+    
+    .page-title {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .page-title h1 {
+      font-size: 1.75rem;
+      font-weight: 500;
+      color: #3a3b45;
+      margin: 0;
+    }
+    
+    /* Dashboard Cards */
+    .card-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.1rem 0.75rem 0 rgba(58, 59, 69, 0.1);
+      margin-bottom: 1.75rem;
+      border: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .card-header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e3e6f0;
+      background-color: #f8f9fc;
+      border-top-left-radius: 0.5rem;
+      border-top-right-radius: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .card-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ff4d6d;
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+    
+    /* Stat Cards */
+    .stat-card {
+      border-left: 0.25rem solid;
+      border-radius: 0.5rem;
+      box-shadow: 0 0.1rem 0.75rem 0 rgba(58, 59, 69, 0.1);
+      background: white;
+      display: flex;
+      align-items: center;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      height: 100%;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .stat-card-primary {
+      border-left-color: #ff4d6d;
+    }
+    
+    .stat-card-success {
+      border-left-color: #ff758f;
+    }
+    
+    .stat-card-info {
+      border-left-color: #f08080;
+    }
+    
+    .stat-card-warning {
+      border-left-color: #ffb6c1;
+    }
+    
+    .stat-content {
+      flex: 1;
+    }
+    
+    .stat-label {
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #ff4d6d;
+      margin-bottom: 0.25rem;
+      letter-spacing: 0.05em;
+    }
+    
+    .stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #5a5c69;
+      margin-bottom: 0;
+    }
+    
+    .stat-icon {
+      font-size: 2rem;
+      color: #dddfeb;
+    }
+    
+    .stat-progress {
+      margin-top: 0.5rem;
+      height: 0.5rem;
+      background: #eaecf4;
+      border-radius: 0.25rem;
+      overflow: hidden;
+    }
+    
+    .stat-progress-bar {
+      height: 100%;
+      border-radius: 0.25rem;
+    }
+    
+    .progress-primary {
+      background: #ff4d6d;
+    }
+    
+    .progress-success {
+      background: #ff758f;
+    }
+    
+    .progress-info {
+      background: #f08080;
+    }
+    
+    .progress-warning {
+      background: #ffb6c1;
+    }
+    
+    /* Charts */
+    .chart-area {
+      height: 20rem;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+    
+    .chart-bar {
+      height: 20rem;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+    
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Activity Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 1.5rem;
+      margin: 0;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0.75rem;
+      height: 100%;
+      width: 2px;
+      background: #e3e6f0;
+      transform: translateX(-50%);
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1.5rem;
+      list-style: none;
+    }
+    
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+    
+    .timeline-icon {
+      position: absolute;
+      left: -1.5rem;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: #4e73df;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+    
+    .timeline-icon.primary {
+      background: #ff4d6d;
+    }
+    
+    .timeline-icon.success {
+      background: #ff758f;
+    }
+    
+    .timeline-icon.info {
+      background: #f08080;
+    }
+    
+    .timeline-icon.warning {
+      background: #ffb6c1;
+    }
+    
+    .timeline-content {
+      background: white;
+      border-radius: 0.35rem;
+      padding: 1rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .timeline-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+    
+    .timeline-text {
+      font-size: 0.85rem;
+      color: #858796;
+      margin-bottom: 0.5rem;
+    }
+    
+    .timeline-time {
+      font-size: 0.75rem;
+      color: #b7b9cc;
+    }
+    
+    /* Achievements */
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    
+    .achievement {
+      background: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 0.1rem 0.75rem 0 rgba(58, 59, 69, 0.1);
+      transition: all 0.2s;
+      height: 100%;
+    }
+    
+    .achievement:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .achievement-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      background: #ff4d6d;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin: 0 auto 0.75rem;
+      transition: transform 0.2s;
+    }
+    
+    .achievement:hover .achievement-icon {
+      transform: scale(1.1);
+    }
+    
+    .achievement-icon.locked {
+      background: #dddfeb;
+      color: #b7b9cc;
+      position: relative;
+    }
+    
+    .achievement-icon.locked::after {
+      content: '\f023';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      bottom: -0.25rem;
+      right: -0.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: white;
+      color: #b7b9cc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .achievement-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #5a5c69;
+      margin-bottom: 0.25rem;
+    }
+    
+    .achievement-desc {
+      font-size: 0.75rem;
+      color: #858796;
+    }
+    
+    /* Notifications */
+    .notification {
+      display: flex;
+      padding: 1rem 0;
+      border-bottom: 1px solid #e3e6f0;
+      align-items: flex-start;
+    }
+    
+    .notification:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    
+    .notification:first-child {
+      padding-top: 0;
+    }
+    
+    .notification-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: #4e73df;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .notification-icon.primary {
+      background: #ff4d6d;
+    }
+    
+    .notification-icon.success {
+      background: #ff758f;
+    }
+    
+    .notification-icon.info {
+      background: #f08080;
+    }
+    
+    .notification-icon.warning {
+      background: #ffb6c1;
+    }
+    
+    .notification-content {
+      flex: 1;
+    }
+    
+    .notification-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #5a5c69;
+      margin-bottom: 0.25rem;
+    }
+    
+    .notification-text {
+      font-size: 0.85rem;
+      color: #858796;
+      margin-bottom: 0.5rem;
+    }
+    
+    .notification-time {
+      font-size: 0.75rem;
+      color: #b7b9cc;
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 1.25rem;
+      background: white;
+      border-top: 1px solid #e3e6f0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #858796;
+      margin-top: auto;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* Responsive */
+    @media (max-width: 1400px) {
+      .card-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 5rem;
+        transition: width 0.3s ease;
+      }
+      
+      .sidebar.toggled {
+        width: 220px;
+      }
+      
+      .sidebar .nav-item .nav-link {
+        text-align: center;
+        padding: 0.75rem 1rem;
+        width: 100%;
+      }
+      
+      .sidebar:not(.toggled) .nav-item .nav-link span {
+        display: none;
+      }
+      
+      .sidebar:not(.toggled) .nav-item .nav-link i {
+        margin-right: 0;
+        font-size: 1rem;
+      }
+      
+      .sidebar:not(.toggled) .sidebar-brand {
+        justify-content: center;
+      }
+      
+      .sidebar:not(.toggled) .sidebar-brand-text {
+        display: none;
+      }
+      
+      .sidebar:not(.toggled) .sidebar-heading {
+        text-align: center;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1.25rem;
+      }
+      
+      .page-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .card-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .chart-area, .chart-bar {
+        height: 15rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .topbar-items {
+        display: none;
+      }
+      
+      .user-name {
+        display: none;
+      }
+      
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .achievements-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <i class="fas fa-laugh-wink"></i>
+      <div class="sidebar-brand-text">InterVU</div>
+    </div>
+    
+    <hr class="sidebar-divider">
+    
+    <div class="sidebar-heading">Core</div>
+    
+    <div class="nav-item">
+      <a href="dashboard.html" class="nav-link active">
+        <i class="fas fa-fw fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+    </div>
+    
+    <hr class="sidebar-divider">
+    
+    <div class="sidebar-heading">Practice</div>
+    
+    <div class="nav-item">
+      <a href="interview.html" class="nav-link">
+        <i class="fas fa-fw fa-video"></i>
+        <span>Interview Practice</span>
+      </a>
+    </div>
+    
+    <div class="nav-item">
+      <a href="resume.html" class="nav-link">
+        <i class="fas fa-fw fa-file-alt"></i>
+        <span>Resume Builder</span>
+      </a>
+    </div>
+    
+    <div class="nav-item">
+      <a href="chatbot.html" class="nav-link">
+        <i class="fas fa-fw fa-comments"></i>
+        <span>AI Assistant</span>
+      </a>
+    </div>
+    
+    <hr class="sidebar-divider">
+    
+    <div class="sidebar-heading">Account</div>
+    
+    <div class="nav-item">
+      <a href="#" class="nav-link">
+        <i class="fas fa-fw fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </div>
+    
+    <div class="nav-item">
+      <a href="#" class="nav-link">
+        <i class="fas fa-fw fa-cog"></i>
+        <span>Settings</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-toggle">
+      <i class="fas fa-chevron-left"></i>
+    </div>
+  </div>
+  
+  <!-- Content Wrapper -->
+  <div class="content-wrapper">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-items">
+        
+        <div class="topbar-item">
+          <div class="user-profile" id="userProfile">
+            <div class="user-avatar" id="userAvatar">JS</div>
+            <div class="user-name" id="userName">John Smith</div>
+            
+            <div class="user-menu" id="userMenu">
+              <a href="#" class="user-menu-item" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="page-title">
+        <h1>Dashboard</h1>
+      </div>
+      
+      <!-- Stat Cards -->
+      <div class="card-row">
+        <div class="stat-card stat-card-primary">
+          <div class="stat-content">
+            <div class="stat-label">Interviews Completed</div>
+            <div class="stat-value" id="interviewCount">0</div>
+            <div class="stat-progress">
+              <div class="stat-progress-bar progress-primary" style="width: 70%"></div>
+            </div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-video"></i>
+          </div>
+        </div>
+        
+        <div class="stat-card stat-card-success">
+          <div class="stat-content">
+            <div class="stat-label">Resumes Created</div>
+            <div class="stat-value" id="resumeCount">0</div>
+            <div class="stat-progress">
+              <div class="stat-progress-bar progress-success" style="width: 50%"></div>
+            </div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+        </div>
+        
+        <div class="stat-card stat-card-info">
+          <div class="stat-content">
+            <div class="stat-label">AI Chat Sessions</div>
+            <div class="stat-value" id="chatCount">0</div>
+            <div class="stat-progress">
+              <div class="stat-progress-bar progress-info" style="width: 30%"></div>
+            </div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-comments"></i>
+          </div>
+        </div>
+        
+        <div class="stat-card stat-card-warning">
+          <div class="stat-content">
+            <div class="stat-label">Total Practice Time</div>
+            <div class="stat-value" id="timeSpent">0h 0m</div>
+            <div class="stat-progress">
+              <div class="stat-progress-bar progress-warning" style="width: 60%"></div>
+            </div>
+          </div>
+          <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Main Dashboard Content -->
+      <div class="row">
+        <!-- Left Column -->
+        <div class="col">
+          <!-- Charts -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="card-title">Activity Overview</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-area">
+                <canvas id="activityChart"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="card-title">Recent Activity</h6>
+            </div>
+            <div class="card-body">
+              <div class="timeline" id="activityTimeline">
+                <!-- Timeline items will be added dynamically -->
+              </div>
+            </div>
+          </div>
+          
+          <!-- Notifications -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="card-title">Notifications</h6>
+            </div>
+            <div class="card-body">
+              <div id="notificationsList">
+                <!-- Notifications will be added dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="col">
+          <!-- Practice Distribution -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="card-title">Practice Distribution</h6>
+            </div>
+            <div class="card-body">
+              <div class="chart-bar">
+                <canvas id="distributionChart"></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Achievements -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="card-title">Your Achievements</h6>
+            </div>
+            <div class="card-body">
+              <div class="achievements-grid" id="achievementsList">
+                <!-- Achievements will be added dynamically -->
+              </div>
+            </div>
+          </div>
+          
+          <!-- Goals -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="card-title">Your Goals</h6>
+            </div>
+            <div class="card-body">
+              <div id="goalsList">
+                <!-- Goals will be added dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <div>Copyright &copy; InterVU 2023</div>
+    </footer>
+  </div>
+  
+  <script src="activity-tracker.js"></script>
+  <script src="test-activity.js"></script>
+  <script>
+    // Toggle user menu
+    document.getElementById('userProfile').addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('userMenu').classList.toggle('active');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function() {
+      document.getElementById('userMenu').classList.remove('active');
+    });
+    
+    // Toggle sidebar
+    document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+      document.querySelector('.sidebar').classList.toggle('toggled');
+      
+      if (document.querySelector('.sidebar').classList.contains('toggled')) {
+        document.querySelector('.sidebar-toggle i').classList.replace('fa-chevron-left', 'fa-chevron-right');
+      } else {
+        document.querySelector('.sidebar-toggle i').classList.replace('fa-chevron-right', 'fa-chevron-left');
+      }
+    });
+    
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem('intervuCurrentUser');
+      window.location.href = 'login.html';
+    });
+    
+    // Update user info
+    function updateUserInfo() {
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (currentUser) {
+        document.getElementById('userName').textContent = currentUser.name || 'User';
+        
+        // Set initials
+        const name = currentUser.name || 'User';
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+      } else {
+        // Redirect to login if not logged in
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // Update dashboard stats
+    function updateDashboardStats() {
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) return;
+      
+      const userId = currentUser.id || currentUser.email;
+      
+      // Get stats
+      const storedStats = localStorage.getItem(`intervu_stats_${userId}`);
+      if (!storedStats) return;
+      
+      const stats = JSON.parse(storedStats);
+      
+      // Update interview count
+      document.getElementById('interviewCount').textContent = stats.interviewSessions;
+      
+      // Update resume count
+      document.getElementById('resumeCount').textContent = stats.resumesCreated;
+      
+      // Update chat count
+      document.getElementById('chatCount').textContent = stats.chatbotInteractions;
+      
+      // Update time spent
+      const hours = Math.floor(stats.totalPracticeTime / 60);
+      const minutes = stats.totalPracticeTime % 60;
+      document.getElementById('timeSpent').textContent = `${hours}h ${minutes}m`;
+      
+      // Update progress bars
+      const interviewProgress = Math.min(stats.interviewSessions * 10, 100);
+      document.querySelector('.stat-card-primary .stat-progress-bar').style.width = `${interviewProgress}%`;
+      
+      const resumeProgress = Math.min(stats.resumesCreated * 20, 100);
+      document.querySelector('.stat-card-success .stat-progress-bar').style.width = `${resumeProgress}%`;
+      
+      const chatProgress = Math.min(stats.chatbotInteractions * 5, 100);
+      document.querySelector('.stat-card-info .stat-progress-bar').style.width = `${chatProgress}%`;
+      
+      const timeProgress = Math.min(stats.totalPracticeTime / 120 * 100, 100);
+      document.querySelector('.stat-card-warning .stat-progress-bar').style.width = `${timeProgress}%`;
+    }
+    
+    // Update activity timeline
+    function updateActivityTimeline() {
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) return;
+      
+      const userId = currentUser.id || currentUser.email;
+      
+      // Get activities
+      const storedActivities = localStorage.getItem(`intervu_activities_${userId}`);
+      if (!storedActivities) return;
+      
+      const activities = JSON.parse(storedActivities);
+      
+      // Combine all activities and sort by timestamp (newest first)
+      const allActivities = [
+        ...activities.interviews.map(a => ({ ...a, type: 'interview' })),
+        ...activities.resumes.map(a => ({ ...a, type: 'resume' })),
+        ...activities.chats.map(a => ({ ...a, type: 'chat' })),
+        ...activities.logins.map(a => ({ ...a, type: 'login' }))
+      ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5); // Show only the 5 most recent
+      
+      const timelineContainer = document.getElementById('activityTimeline');
+      timelineContainer.innerHTML = '';
+      
+      if (allActivities.length === 0) {
+        timelineContainer.innerHTML = '<p class="text-center">No recent activity to display.</p>';
+        return;
+      }
+      
+      // Create timeline items
+      allActivities.forEach(activity => {
+        const timelineItem = document.createElement('div');
+        timelineItem.className = 'timeline-item';
+        
+        // Format time
+        const activityTime = new Date(activity.timestamp);
+        const timeAgo = getTimeAgo(activityTime);
+        
+        // Create activity title and icon based on type
+        let activityTitle = '';
+        let activityText = '';
+        let iconClass = '';
+        let iconColor = '';
+        
+        switch (activity.type) {
+          case 'interview':
+            activityTitle = 'Completed an interview session';
+            activityText = activity.details?.type ? `Type: ${activity.details.type}` : '';
+            iconClass = 'fa-video';
+            iconColor = 'primary';
+            break;
+          case 'resume':
+            activityTitle = 'Created a new resume';
+            activityText = activity.details?.template ? `Template: ${activity.details.template}` : '';
+            iconClass = 'fa-file-alt';
+            iconColor = 'success';
+            break;
+          case 'chat':
+            activityTitle = 'Had an AI chat session';
+            activityText = activity.details?.topic ? `Topic: ${activity.details.topic}` : '';
+            iconClass = 'fa-comments';
+            iconColor = 'info';
+            break;
+          case 'login':
+            activityTitle = 'Logged into the platform';
+            activityText = activity.details?.page ? `Page: ${activity.details.page}` : '';
+            iconClass = 'fa-sign-in-alt';
+            iconColor = 'warning';
+            break;
+        }
+        
+        // Create timeline HTML
+        timelineItem.innerHTML = `
+          <div class="timeline-icon ${iconColor}">
+            <i class="fas ${iconClass}"></i>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-title">${activityTitle}</div>
+            ${activityText ? `<div class="timeline-text">${activityText}</div>` : ''}
+            <div class="timeline-time">${timeAgo}</div>
+          </div>
+        `;
+        
+        timelineContainer.appendChild(timelineItem);
+      });
+    }
+    
+    // Update achievements
+    function updateAchievements() {
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) return;
+      
+      const userId = currentUser.id || currentUser.email;
+      
+      // Get achievements
+      const storedAchievements = localStorage.getItem(`intervu_achievements_${userId}`);
+      const achievements = storedAchievements ? JSON.parse(storedAchievements) : [];
+      
+      // Get locked achievements
+      const storedLockedAchievements = localStorage.getItem(`intervu_locked_achievements_${userId}`);
+      const lockedAchievements = storedLockedAchievements ? JSON.parse(storedLockedAchievements) : [];
+      
+      const achievementsContainer = document.getElementById('achievementsList');
+      achievementsContainer.innerHTML = '';
+      
+      // Add unlocked achievements
+      achievements.forEach(achievement => {
+        const achievementItem = document.createElement('div');
+        achievementItem.className = 'achievement';
+        
+        // Get icon based on achievement ID
+        let icon = 'fa-trophy';
+        if (achievement.id === 'first_interview') icon = 'fa-video';
+        else if (achievement.id === 'resume_pro') icon = 'fa-file-alt';
+        else if (achievement.id === 'chatty') icon = 'fa-comments';
+        else if (achievement.id === 'interview_master') icon = 'fa-award';
+        
+        achievementItem.innerHTML = `
+          <div class="achievement-icon">
+            <i class="fas ${icon}"></i>
+          </div>
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-desc">${achievement.description}</div>
+        `;
+        
+        achievementsContainer.appendChild(achievementItem);
+      });
+      
+      // Add locked achievements
+      lockedAchievements.forEach(achievement => {
+        const achievementItem = document.createElement('div');
+        achievementItem.className = 'achievement';
+        
+        // Get icon based on achievement ID
+        let icon = 'fa-trophy';
+        if (achievement.id === 'first_interview') icon = 'fa-video';
+        else if (achievement.id === 'resume_pro') icon = 'fa-file-alt';
+        else if (achievement.id === 'chatty') icon = 'fa-comments';
+        else if (achievement.id === 'interview_master') icon = 'fa-award';
+        
+        achievementItem.innerHTML = `
+          <div class="achievement-icon locked">
+            <i class="fas ${icon}"></i>
+          </div>
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-desc">${achievement.description}</div>
+        `;
+        
+        achievementsContainer.appendChild(achievementItem);
+      });
+      
+      // Show empty state if no achievements
+      if (achievements.length === 0 && lockedAchievements.length === 0) {
+        achievementsContainer.innerHTML = '<p class="text-center">No achievements to display.</p>';
+      }
+    }
+    
+    // Update notifications
+    function updateNotifications() {
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) return;
+      
+      const userId = currentUser.id || currentUser.email;
+      
+      // Get notifications
+      const storedNotifications = localStorage.getItem(`intervu_notifications_${userId}`);
+      const notifications = storedNotifications ? JSON.parse(storedNotifications) : [];
+      
+      const notificationsContainer = document.getElementById('notificationsList');
+      notificationsContainer.innerHTML = '';
+      
+      if (notifications.length === 0) {
+        notificationsContainer.innerHTML = '<p class="text-center">No notifications to display.</p>';
+        return;
+      }
+      
+      // Add notifications (show only the 3 most recent)
+      notifications.slice(0, 3).forEach(notification => {
+        const notificationItem = document.createElement('div');
+        notificationItem.className = 'notification';
+        notificationItem.dataset.id = notification.id;
+        
+        // Format time
+        const notificationTime = new Date(notification.timestamp);
+        const timeAgo = getTimeAgo(notificationTime);
+        
+        // Get icon based on notification type
+        let iconClass = 'fa-bell';
+        if (notification.type === 'success') iconClass = 'fa-check-circle';
+        else if (notification.type === 'info') iconClass = 'fa-info-circle';
+        else if (notification.type === 'alert') iconClass = 'fa-exclamation-circle';
+        
+        notificationItem.innerHTML = `
+          <div class="notification-icon ${notification.type}">
+            <i class="fas ${iconClass}"></i>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">${notification.title}</div>
+            <div class="notification-text">${notification.description}</div>
+            <div class="notification-time">${timeAgo}</div>
+          </div>
+        `;
+        
+        notificationsContainer.appendChild(notificationItem);
+      });
+    }
+    
+    // Update goals
+    function updateGoals() {
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) return;
+      
+      const userId = currentUser.id || currentUser.email;
+      
+      // Get goals
+      const storedGoals = localStorage.getItem(`intervu_goals_${userId}`);
+      const goals = storedGoals ? JSON.parse(storedGoals) : [];
+      
+      const goalsContainer = document.getElementById('goalsList');
+      goalsContainer.innerHTML = '';
+      
+      if (goals.length === 0) {
+        goalsContainer.innerHTML = '<p class="text-center">No goals to display.</p>';
+        return;
+      }
+      
+      // Add goals
+      goals.forEach(goal => {
+        const goalItem = document.createElement('div');
+        goalItem.className = 'goal-item';
+        
+        // Calculate progress percentage
+        const progressPercent = Math.min(Math.round((goal.current / goal.target) * 100), 100);
+        
+        // Determine goal color
+        let goalColor = 'primary';
+        if (goal.category === 'resume') goalColor = 'success';
+        else if (goal.category === 'chat') goalColor = 'info';
+        else if (goal.category === 'time') goalColor = 'warning';
+        
+        // Create goal HTML
+        goalItem.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <div style="font-weight: 700; font-size: 0.85rem;">${goal.title}</div>
+            <div style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: ${goal.completed ? '#e8f5e9' : '#fff8e1'}; color: ${goal.completed ? '#1cc88a' : '#f6c23e'}; border-radius: 0.25rem; font-weight: 700;">
+              ${goal.completed ? 'Completed' : 'In Progress'}
+            </div>
+          </div>
+          <div style="height: 0.5rem; background: #eaecf4; border-radius: 0.25rem; overflow: hidden; margin-bottom: 0.5rem;">
+            <div style="height: 100%; width: ${progressPercent}%; background: var(--${goalColor}); border-radius: 0.25rem;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #858796;">
+            <div>${goal.current}/${goal.target} ${goal.category === 'time' ? 'hours' : 'completed'}</div>
+            <div>${progressPercent}%</div>
+          </div>
+        `;
+        
+        goalsContainer.appendChild(goalItem);
+      });
+    }
+    
+    // Initialize charts
+    function initializeCharts() {
+      // Activity Chart
+      const activityCtx = document.getElementById('activityChart').getContext('2d');
+      
+      // Generate labels for the last 7 days
+      const labels = [];
+      const interviewData = new Array(7).fill(0);
+      const resumeData = new Array(7).fill(0);
+      const chatData = new Array(7).fill(0);
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      }
+      
+      // Get user activities
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (currentUser) {
+        const userId = currentUser.id || currentUser.email;
+        const storedActivities = localStorage.getItem(`intervu_activities_${userId}`);
+        
+        if (storedActivities) {
+          const activities = JSON.parse(storedActivities);
+          
+          // Count activities per day
+          const countActivitiesByDay = (activityArray, dataArray) => {
+            activityArray.forEach(activity => {
+              const activityDate = new Date(activity.timestamp);
+              const today = new Date();
+              const diffTime = Math.abs(today - activityDate);
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              
+              if (diffDays < 7) {
+                dataArray[6 - diffDays]++;
+              }
+            });
+          };
+          
+          countActivitiesByDay(activities.interviews, interviewData);
+          countActivitiesByDay(activities.resumes, resumeData);
+          countActivitiesByDay(activities.chats, chatData);
+        }
+      }
+      
+      new Chart(activityCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Interviews',
+              data: interviewData,
+              borderColor: '#ff4d6d',
+              backgroundColor: 'rgba(255, 77, 109, 0.05)',
+              borderWidth: 2,
+              pointBackgroundColor: '#ff4d6d',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Resumes',
+              data: resumeData,
+              borderColor: '#ff758f',
+              backgroundColor: 'rgba(255, 117, 143, 0.05)',
+              borderWidth: 2,
+              pointBackgroundColor: '#ff758f',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Chats',
+              data: chatData,
+              borderColor: '#f08080',
+              backgroundColor: 'rgba(240, 128, 128, 0.05)',
+              borderWidth: 2,
+              pointBackgroundColor: '#f08080',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: {
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              left: 10,
+              right: 25,
+              top: 25,
+              bottom: 0
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                maxTicksLimit: 7
+              }
+            },
+            y: {
+              ticks: {
+                maxTicksLimit: 5,
+                padding: 10
+              },
+              grid: {
+                color: "rgb(234, 236, 244)",
+                zeroLineColor: "rgb(234, 236, 244)",
+                drawBorder: false,
+                borderDash: [2],
+                zeroLineBorderDash: [2]
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            tooltip: {
+              backgroundColor: "rgb(255, 255, 255)",
+              bodyColor: "#858796",
+              titleColor: "#6e707e",
+              titleMarginBottom: 10,
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              padding: 15,
+              displayColors: false,
+              intersect: false,
+              mode: 'index',
+              caretPadding: 10
+            }
+          }
+        }
+      });
+      
+      // Distribution Chart
+      const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+      
+      // Get user stats
+      let interviewTime = 0;
+      let resumeTime = 0;
+      let chatTime = 0;
+      
+      if (currentUser) {
+        const userId = currentUser.id || currentUser.email;
+        const storedActivities = localStorage.getItem(`intervu_activities_${userId}`);
+        
+        if (storedActivities) {
+          const activities = JSON.parse(storedActivities);
+          
+          // Calculate time spent on each activity
+          activities.interviews.forEach(a => interviewTime += (a.duration || 0));
+          activities.resumes.forEach(a => resumeTime += (a.duration || 0));
+          activities.chats.forEach(a => chatTime += (a.duration || 0));
+        }
+      }
+      
+      new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Interviews', 'Resumes', 'Chats'],
+          datasets: [{
+            data: [interviewTime, resumeTime, chatTime],
+            backgroundColor: ['#ff4d6d', '#ff758f', '#f08080'],
+            hoverBackgroundColor: ['#e63b5f', '#ff5c7c', '#e76b6b'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+          }],
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom'
+            },
+            tooltip: {
+              backgroundColor: "rgb(255, 255, 255)",
+              bodyColor: "#858796",
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              padding: 15,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  const value = context.raw;
+                  const hours = Math.floor(value / 60);
+                  const minutes = value % 60;
+                  return `${context.label}: ${hours}h ${minutes}m`;
+                }
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+    
+    // Helper function to format time ago
+    function getTimeAgo(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHour = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHour / 24);
+      
+      if (diffSec < 60) {
+        return 'just now';
+      } else if (diffMin < 60) {
+        return `${diffMin} minute${diffMin > 1 ? 's' : ''} ago`;
+      } else if (diffHour < 24) {
+        return `${diffHour} hour${diffHour > 1 ? 's' : ''} ago`;
+      } else if (diffDay < 30) {
+        return `${diffDay} day${diffDay > 1 ? 's' : ''} ago`;
+      } else {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      }
+    }
+    
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      // Track page visit
+      if (typeof trackPageVisit === 'function') {
+        trackPageVisit();
+        console.log('Page visit tracked');
+      } else {
+        console.error('trackPageVisit function not found');
+      }
+      
+      // Update user info
+      updateUserInfo();
+      
+      // Update dashboard data
+      updateDashboardStats();
+      updateActivityTimeline();
+      updateAchievements();
+      updateNotifications();
+      updateGoals();
+      
+      // Initialize charts
+      initializeCharts();
+      
+      // Set up refresh interval
+      setInterval(function() {
+        updateDashboardStats();
+        updateActivityTimeline();
+        updateAchievements();
+        updateNotifications();
+        updateGoals();
+        
+        // Update activity durations
+        if (typeof updateActivityDurations === 'function') {
+          updateActivityDurations();
+          console.log('Activity durations updated');
+        }
+      }, 30000); // Update every 30 seconds
+    });
+  </script>
+</body>
+</html>

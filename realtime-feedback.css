@@ -1,0 +1,163 @@
+/* Real-time feedback styles */
+.real-time-container {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  border: 1px solid #cce5ff;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.real-time-container h3 {
+  margin-bottom: 12px;
+  color: #0066cc;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #4caf50;
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.feedback-section {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.feedback-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.feedback-section strong {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+.feedback-item {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: flex-start;
+  padding-left: 15px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.feedback-item::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.feedback-positive {
+  color: #4caf50;
+}
+
+.feedback-warning {
+  color: #ff9800;
+}
+
+.feedback-negative {
+  color: #f44336;
+}
+
+.feedback-neutral {
+  color: #607d8b;
+}
+
+.feedback-tip {
+  color: #2196f3;
+}
+
+/* Animation for feedback updates */
+@keyframes highlight {
+  0% { background-color: rgba(33, 150, 243, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.feedback-update {
+  animation: highlight 2s ease-out;
+}
+
+/* Metrics display */
+.metrics-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.metric {
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.metric-good {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.metric-warning {
+  background-color: #fff3e0;
+  color: #ef6c00;
+}
+
+.metric-bad {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.metric-icon {
+  font-size: 1rem;
+}
+
+/* Progress bars */
+.progress-bar {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.progress-value {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.progress-good {
+  background-color: #4caf50;
+}
+
+.progress-warning {
+  background-color: #ff9800;
+}
+
+.progress-bad {
+  background-color: #f44336;
+}

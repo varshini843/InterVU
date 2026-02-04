@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InterVU - User Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f8f9fc;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    /* Navbar */
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 0.8rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 100;
+      height: 70px;
+    }
+    .logo {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #4e73df;
+      user-select: none;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .nav-right a {
+      font-weight: 500;
+      color: #5a5c69;
+      transition: color 0.2s ease;
+      font-size: 0.9rem;
+    }
+    .nav-right a:hover, .nav-right a.active {
+      color: #4e73df;
+    }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #4e73df;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .user-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 10px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 220px;
+      padding: 0.5rem 0;
+      display: none;
+      z-index: 101;
+      border: 1px solid #e3e6f0;
+    }
+    .user-menu.active {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+    .user-menu-item {
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s;
+      font-size: 0.9rem;
+    }
+    .user-menu-item:hover {
+      background: #f8f9fc;
+    }
+    .user-menu-item i {
+      color: #5a5c69;
+      width: 20px;
+      text-align: center;
+    }
+    .user-menu-item.logout {
+      border-top: 1px solid #e3e6f0;
+      margin-top: 0.5rem;
+      color: #e74a3b;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Dashboard header */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .dashboard-title h1 {
+      color: #4e73df;
+      font-size: 1.8rem;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
+    }
+    .dashboard-title p {
+      color: #5a5c69;
+      font-size: 0.9rem;
+    }
+    .dashboard-actions {
+      display: flex;
+      gap: 0.8rem;
+    }
+    .date-filter {
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      border: 1px solid #e3e6f0;
+    }
+    .date-filter select {
+      border: none;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      color: #555;
+      padding-right: 1rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .export-btn {
+      background: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      color: #555;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+    }
+    .export-btn:hover {
+      background: #f9f9f9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1.2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      border: 1px solid #e3e6f0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.8rem;
+    }
+    .stat-title {
+      font-size: 0.9rem;
+      color: #5a5c69;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    .stat-icon.interviews {
+      background: linear-gradient(45deg, #4e73df, #3a64d8);
+    }
+    .stat-icon.resumes {
+      background: linear-gradient(45deg, #36b9cc, #1cc7d0);
+    }
+    .stat-icon.chats {
+      background: linear-gradient(45deg, #1cc88a, #13a673);
+    }
+    .stat-icon.time {
+      background: linear-gradient(45deg, #f6c23e, #f4b619);
+    }
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #5a5c69;
+      margin-bottom: 0.5rem;
+    }
+    .stat-change {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-weight: 500;
+    }
+    .stat-change.positive {
+      color: #1cc88a;
+    }
+    .stat-change.negative {
+      color: #e74a3b;
+    }
+
+    /* Charts and widgets */
+    .dashboard-widgets {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+    .widget {
+      background: white;
+      border-radius: 8px;
+      padding: 1.2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+      border: 1px solid #e3e6f0;
+    }
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid #e3e6f0;
+      padding-bottom: 0.8rem;
+    }
+    .widget-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #4e73df;
+    }
+    .widget-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .widget-action {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fc;
+      color: #5a5c69;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .widget-action:hover {
+      background: #eaecf4;
+      color: #4e73df;
+    }
+    .chart-container {
+      height: 300px;
+      position: relative;
+    }
+
+    /* Activity timeline */
+    .activity-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    .activity-item {
+      display: flex;
+      gap: 0.8rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f0f0f8;
+    }
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .activity-icon.interview {
+      background: linear-gradient(45deg, #4e73df, #3a64d8);
+    }
+    .activity-icon.resume {
+      background: linear-gradient(45deg, #36b9cc, #1cc7d0);
+    }
+    .activity-icon.chat {
+      background: linear-gradient(45deg, #1cc88a, #13a673);
+    }
+    .activity-icon.login {
+      background: linear-gradient(45deg, #f6c23e, #f4b619);
+    }
+    .activity-content {
+      flex: 1;
+    }
+    .activity-title {
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+      color: #5a5c69;
+    }
+    .activity-time {
+      font-size: 0.75rem;
+      color: #858796;
+    }
+
+    /* Bottom widgets */
+    .bottom-widgets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.2rem;
+    }
+    
+    /* Achievements */
+    .achievements-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 1rem;
+    }
+    .achievement {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0.8rem;
+      border-radius: 6px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .achievement:hover {
+      background: #f8f9fc;
+      transform: translateY(-3px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    .achievement-icon {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: white;
+      margin-bottom: 0.5rem;
+      position: relative;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    .achievement-icon.unlocked {
+      background: linear-gradient(45deg, #4e73df, #3a64d8);
+    }
+    .achievement-icon.locked {
+      background: #d1d3e2;
+      opacity: 0.8;
+    }
+    .achievement-icon.locked::after {
+      content: '\f023';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      bottom: -5px;
+      right: -5px;
+      background: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #858796;
+      font-size: 0.7rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .achievement-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: #5a5c69;
+    }
+    .achievement-desc {
+      font-size: 0.75rem;
+      color: #858796;
+      line-height: 1.3;
+    }
+
+    /* Goals */
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .goal-item {
+      background: #f8f9fc;
+      border-radius: 6px;
+      padding: 1rem;
+      border: 1px solid #e3e6f0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .goal-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+    .goal-title {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #5a5c69;
+    }
+    .goal-status {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .goal-status.in-progress {
+      background: #fff8e1;
+      color: #f6c23e;
+    }
+    .goal-status.completed {
+      background: #e8f5e9;
+      color: #1cc88a;
+    }
+    .goal-progress {
+      height: 6px;
+      background: #eaecf4;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .goal-progress-bar {
+      height: 100%;
+      border-radius: 3px;
+    }
+    .goal-progress-bar.interview {
+      background: linear-gradient(45deg, #4e73df, #3a64d8);
+    }
+    .goal-progress-bar.resume {
+      background: linear-gradient(45deg, #36b9cc, #1cc7d0);
+    }
+    .goal-progress-bar.time {
+      background: linear-gradient(45deg, #1cc88a, #13a673);
+    }
+    .goal-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #858796;
+      font-weight: 500;
+    }
+
+    /* Notifications */
+    .notifications-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .notification-item {
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #e3e6f0;
+      display: flex;
+      gap: 0.8rem;
+    }
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+    .notification-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .notification-icon.alert {
+      background: linear-gradient(45deg, #f6c23e, #f4b619);
+    }
+    .notification-icon.info {
+      background: linear-gradient(45deg, #4e73df, #3a64d8);
+    }
+    .notification-icon.success {
+      background: linear-gradient(45deg, #1cc88a, #13a673);
+    }
+    .notification-icon.error {
+      background: linear-gradient(45deg, #e74a3b, #d52a1a);
+    }
+    .notification-content {
+      flex: 1;
+    }
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      font-size: 0.9rem;
+      color: #5a5c69;
+    }
+    .notification-desc {
+      font-size: 0.8rem;
+      color: #858796;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+    .notification-time {
+      font-size: 0.75rem;
+      color: #858796;
+      margin-bottom: 0.5rem;
+    }
+    .notification-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+    .notification-action {
+      font-size: 0.75rem;
+      color: #4e73df;
+      cursor: pointer;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      background: #f8f9fc;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+    .notification-action:hover {
+      background: #eaecf4;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .dashboard-widgets {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .dashboard-actions {
+        width: 100%;
+      }
+      .date-filter, .export-btn {
+        flex: 1;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+      .bottom-widgets {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 576px) {
+      main {
+        padding: 1rem;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-right {
+        gap: 1rem;
+      }
+      .nav-right a:not(:last-child) {
+        display: none;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f8f9fc;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d1d3e2;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #b7b9cc;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">InterVU</div>
+    <div class="nav-right">
+      <a href="index.html">Home</a>
+      <a href="interview.html">Interview Practice</a>
+      <a href="resume.html">Resume Builder</a>
+      <a href="chatbot.html">AI Assistant</a>
+      <a href="dashboard-new.html">Dashboard</a>
+      <div class="user-avatar" id="userAvatar">
+        <span id="userInitials">JS</span>
+        <div class="user-menu" id="userMenu">
+          <div class="user-menu-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </div>
+          <div class="user-menu-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </div>
+          <a href="dashboard-new.html" class="user-menu-item">
+            <i class="fas fa-columns"></i>
+            <span>Dashboard</span>
+          </a>
+          <div class="user-menu-item logout" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="dashboard-header">
+      <div class="dashboard-title">
+        <h1>Dashboard</h1>
+        <p>Welcome back, <span id="userName">John Smith</span>! Here's your activity overview.</p>
+      </div>
+      <div class="dashboard-actions">
+        <div class="date-filter">
+          <select id="dateFilter">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last year</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <button class="export-btn" id="exportBtn">
+          <i class="fas fa-download"></i>
+          <span>Export Report</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">Interviews Completed</div>
+          <div class="stat-icon interviews">
+            <i class="fas fa-microphone"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="interviewCount">0</div>
+        <div class="stat-change positive" id="interviewChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">Resumes Created</div>
+          <div class="stat-icon resumes">
+            <i class="fas fa-file-alt"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="resumeCount">0</div>
+        <div class="stat-change positive" id="resumeChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">AI Chat Sessions</div>
+          <div class="stat-icon chats">
+            <i class="fas fa-comments"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="chatCount">0</div>
+        <div class="stat-change positive" id="chatChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">Total Time Spent</div>
+          <div class="stat-icon time">
+            <i class="fas fa-clock"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="timeSpent">0h</div>
+        <div class="stat-change positive" id="timeChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-widgets">
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Activity Overview</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Refresh">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="widget-action" title="More options">
+              <i class="fas fa-ellipsis-v"></i>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Recent Activity</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="View all">
+              <i class="fas fa-external-link-alt"></i>
+            </div>
+          </div>
+        </div>
+        <div class="activity-timeline" id="activityTimeline">
+          <!-- Activity items will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-widgets">
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Performance Metrics</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Refresh">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Achievements</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="View all">
+              <i class="fas fa-trophy"></i>
+            </div>
+          </div>
+        </div>
+        <div class="achievements-list" id="achievementsList">
+          <!-- Achievements will be dynamically added here -->
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Your Goals</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Add goal">
+              <i class="fas fa-plus"></i>
+            </div>
+          </div>
+        </div>
+        <div class="goals-list" id="goalsList">
+          <!-- Goals will be dynamically added here -->
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Notifications</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Mark all as read">
+              <i class="fas fa-check-double"></i>
+            </div>
+          </div>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+          <!-- Notifications will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="auth-service.js"></script>
+  <script src="activity-tracker.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if user is logged in
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) {
+        // Create a demo user if none exists
+        const demoUser = {
+          fullname: 'Demo User',
+          email: 'demo@intervu.app',
+          id: 'demo123'
+        };
+        localStorage.setItem('intervuCurrentUser', JSON.stringify(demoUser));
+        console.log('Created demo user');
+        window.location.reload();
+        return;
+      }
+
+      // Set user name and initials
+      const userName = document.getElementById('userName');
+      const userInitials = document.getElementById('userInitials');
+      
+      if (userName) {
+        userName.textContent = currentUser.fullname || currentUser.name || currentUser.email.split('@')[0];
+      }
+      
+      if (userInitials) {
+        // Get initials from full name
+        const fullName = currentUser.fullname || currentUser.name || currentUser.email.split('@')[0];
+        const nameParts = fullName.split(' ');
+        const initials = nameParts.length > 1 
+          ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+          : nameParts[0].substring(0, 2).toUpperCase();
+        userInitials.textContent = initials;
+      }
+
+      // User menu toggle
+      const userAvatar = document.getElementById('userAvatar');
+      const userMenu = document.getElementById('userMenu');
+      
+      if (userAvatar && userMenu) {
+        userAvatar.addEventListener('click', function(e) {
+          e.stopPropagation();
+          userMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function() {
+          userMenu.classList.remove('active');
+        });
+      }
+
+      // Logout functionality
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+          localStorage.removeItem('intervuCurrentUser');
+          window.location.href = 'login.html';
+        });
+      }
+
+      // Initialize user activity data
+      initializeUserActivity();
+      
+      // Setup charts
+      setupCharts();
+      
+      // Track page visit
+      trackPageVisit();
+      
+      // Setup export functionality
+      const exportBtn = document.getElementById('exportBtn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+          exportUserData();
+        });
+      }
+      
+      // Setup date filter
+      const dateFilter = document.getElementById('dateFilter');
+      if (dateFilter) {
+        dateFilter.addEventListener('change', function() {
+          updateDashboard(parseInt(this.value));
+        });
+      }
+      
+      // Simulate some activity for testing
+      simulateActivity();
+      
+      // Initial dashboard update
+      updateDashboard(30);
+      
+      // Set up refresh interval
+      setInterval(function() {
+        updateDashboard(parseInt(dateFilter.value));
+      }, 60000); // Update every minute
+    });
+    
+    // Simulate activity for testing
+    function simulateActivity() {
+      // Only simulate if no activity exists
+      const data = getUserActivityData(365);
+      if (data.activities.interviews.length === 0 && 
+          data.activities.resumes.length === 0 && 
+          data.activities.chats.length === 0) {
+        
+        console.log("Simulating activity for testing...");
+        
+        // Simulate past activities
+        const now = new Date();
+        
+        // Simulate interviews
+        for (let i = 0; i < 5; i++) {
+          const date = new Date(now);
+          date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+          
+          const activity = {
+            id: generateUniqueId(),
+            timestamp: date.getTime(),
+            duration: 15 + Math.floor(Math.random() * 45), // 15-60 minutes
+            details: { type: "mock interview" }
+          };
+          
+          userActivities.interviews.push(activity);
+          userStats.interviewSessions++;
+        }
+        
+        // Simulate resumes
+        for (let i = 0; i < 3; i++) {
+          const date = new Date(now);
+          date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+          
+          const activity = {
+            id: generateUniqueId(),
+            timestamp: date.getTime(),
+            duration: 20 + Math.floor(Math.random() * 40), // 20-60 minutes
+            details: { template: "professional" }
+          };
+          
+          userActivities.resumes.push(activity);
+          userStats.resumesCreated++;
+        }
+        
+        // Simulate chats
+        for (let i = 0; i < 8; i++) {
+          const date = new Date(now);
+          date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+          
+          const activity = {
+            id: generateUniqueId(),
+            timestamp: date.getTime(),
+            duration: 5 + Math.floor(Math.random() * 25), // 5-30 minutes
+            details: { topic: "interview tips" }
+          };
+          
+          userActivities.chats.push(activity);
+          userStats.chatbotInteractions++;
+        }
+        
+        // Calculate total practice time
+        userStats.totalPracticeTime = 0;
+        userActivities.interviews.forEach(a => userStats.totalPracticeTime += a.duration);
+        userActivities.chats.forEach(a => userStats.totalPracticeTime += a.duration);
+        
+        // Save data
+        saveUserDataToStorage();
+        
+        // Check achievements and goals
+        checkAchievements();
+        updateGoals();
+      }
+    });
+    
+    // Initialize user activity data
+    function initializeUserActivity() {
+      // Load data from localStorage if available
+      loadUserDataFromStorage();
+    }
+    
+    // Track page visit
+    function trackPageVisit() {
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) return;
+      
+      const currentPage = window.location.pathname.split('/').pop();
+      
+      // Track login activity if this is the first visit in this session
+      if (!sessionStorage.getItem('intervu_session_started')) {
+        trackActivity('login', { page: currentPage });
+        sessionStorage.setItem('intervu_session_started', 'true');
+        sessionStorage.setItem('intervu_session_start_time', new Date().getTime());
+      }
+    }
+    
+    // Update dashboard with user data
+    function updateDashboard(days = 30) {
+      const data = getUserActivityData(days);
+      
+      // Update stats
+      updateStats(data.stats);
+      
+      // Update activity chart
+      updateActivityChart(days);
+      
+      // Update performance chart
+      updatePerformanceChart(days);
+      
+      // Update recent activity
+      updateRecentActivity(data);
+      
+      // Update goals
+      updateGoals(data.goals);
+      
+      // Update achievements
+      updateAchievements(data.achievements, data.lockedAchievements);
+      
+      // Update notifications
+      updateNotifications(data.notifications);
+    }
+    
+    // Update stats display
+    function updateStats(stats) {
+      // Get comparison data
+      const comparison = getStatsComparison(30);
+      
+      // Update interview count and change
+      document.getElementById('interviewCount').textContent = stats.interviewSessions;
+      updateStatChange('interviewChange', comparison.interviews.change);
+      
+      // Update resume count and change
+      document.getElementById('resumeCount').textContent = stats.resumesCreated;
+      updateStatChange('resumeChange', comparison.resumes.change);
+      
+      // Update chat count and change
+      document.getElementById('chatCount').textContent = stats.chatbotInteractions;
+      updateStatChange('chatChange', comparison.chats.change);
+      
+      // Update time spent and change
+      const hours = Math.floor(stats.totalPracticeTime / 60);
+      const minutes = stats.totalPracticeTime % 60;
+      document.getElementById('timeSpent').textContent = `${hours}h ${minutes}m`;
+      updateStatChange('timeChange', comparison.timeSpent.change);
+    }
+    
+    // Update stat change display
+    function updateStatChange(elementId, changePercent) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      
+      // Update icon and class
+      const icon = element.querySelector('i');
+      if (changePercent >= 0) {
+        element.className = 'stat-change positive';
+        icon.className = 'fas fa-arrow-up';
+      } else {
+        element.className = 'stat-change negative';
+        icon.className = 'fas fa-arrow-down';
+      }
+      
+      // Update text
+      element.querySelector('span').textContent = `${Math.abs(changePercent)}% from last period`;
+    }
+    
+    // Setup charts
+    function setupCharts() {
+      // Activity chart
+      const activityCtx = document.getElementById('activityChart').getContext('2d');
+      window.activityChart = new Chart(activityCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'Interviews',
+              data: [],
+              borderColor: '#ff4d6d',
+              backgroundColor: 'rgba(255, 77, 109, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Resumes',
+              data: [],
+              borderColor: '#36b9cc',
+              backgroundColor: 'rgba(54, 185, 204, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Chats',
+              data: [],
+              borderColor: '#4e73df',
+              backgroundColor: 'rgba(78, 115, 223, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+      
+      // Performance chart
+      const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+      window.performanceChart = new Chart(performanceCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Interviews', 'Resumes', 'Chats'],
+          datasets: [{
+            data: [0, 0, 0],
+            backgroundColor: ['#ff4d6d', '#36b9cc', '#4e73df'],
+            hoverBackgroundColor: ['#ff3a5f', '#1cc7d0', '#3a64d8'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+    
+    // Update activity chart
+    function updateActivityChart(days) {
+      const activityData = getActivityCountsByDay(days);
+      
+      // Update chart data
+      window.activityChart.data.labels = activityData.map(d => d.date);
+      window.activityChart.data.datasets[0].data = activityData.map(d => d.interviews);
+      window.activityChart.data.datasets[1].data = activityData.map(d => d.resumes);
+      window.activityChart.data.datasets[2].data = activityData.map(d => d.chats);
+      
+      // Update chart
+      window.activityChart.update();
+    }
+    
+    // Update performance chart
+    function updatePerformanceChart(days) {
+      const timeData = getTimeSpentByActivityType(days);
+      
+      // Update chart data
+      window.performanceChart.data.datasets[0].data = [
+        timeData.interviews,
+        timeData.resumes,
+        timeData.chats
+      ];
+      
+      // Update chart
+      window.performanceChart.update();
+    }
+    
+    // Update recent activity
+    function updateRecentActivity(data) {
+      const activityTimeline = document.getElementById('activityTimeline');
+      if (!activityTimeline) return;
+      
+      // Clear existing content
+      activityTimeline.innerHTML = '';
+      
+      // Get recent activities
+      const recentActivities = getRecentActivities(5);
+      
+      // Add activities to timeline
+      recentActivities.forEach(activity => {
+        const date = new Date(activity.timestamp);
+        const timeAgo = getTimeAgo(date);
+        
+        let title = '';
+        let iconClass = '';
+        
+        switch (activity.type) {
+          case 'interview':
+            title = 'Completed an interview practice session';
+            iconClass = 'interview';
+            break;
+          case 'resume':
+            title = 'Created a new resume';
+            iconClass = 'resume';
+            break;
+          case 'chat':
+            title = 'Had an AI chat session';
+            iconClass = 'chat';
+            break;
+          case 'login':
+            title = 'Logged into the platform';
+            iconClass = 'login';
+            break;
+        }
+        
+        const activityItem = document.createElement('div');
+        activityItem.className = 'activity-item';
+        activityItem.innerHTML = `
+          <div class="activity-icon ${iconClass}">
+            <i class="fas fa-${getIconForActivity(activity.type)}"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">${title}</div>
+            <div class="activity-time">${timeAgo}</div>
+          </div>
+        `;
+        
+        activityTimeline.appendChild(activityItem);
+      });
+      
+      // If no activities, show message
+      if (recentActivities.length === 0) {
+        activityTimeline.innerHTML = '<div style="text-align: center; color: #888;">No recent activity</div>';
+      }
+    }
+    
+    // Update goals
+    function updateGoals(goals) {
+      const goalsList = document.querySelector('.goals-list');
+      if (!goalsList) return;
+      
+      // Clear existing content
+      goalsList.innerHTML = '';
+      
+      // Add goals
+      goals.forEach(goal => {
+        const percentage = Math.round((goal.current / goal.target) * 100);
+        
+        const goalItem = document.createElement('div');
+        goalItem.className = 'goal-item';
+        goalItem.innerHTML = `
+          <div class="goal-header">
+            <div class="goal-title">${goal.title}</div>
+            <div class="goal-status ${goal.completed ? 'completed' : 'in-progress'}">${goal.completed ? 'Completed' : 'In Progress'}</div>
+          </div>
+          <div class="goal-progress">
+            <div class="goal-progress-bar ${goal.category}" style="width: ${percentage}%"></div>
+          </div>
+          <div class="goal-details">
+            <div>${goal.current}/${goal.target} ${goal.category === 'time' ? 'hours' : 'completed'}</div>
+            <div>${percentage}%</div>
+          </div>
+        `;
+        
+        goalsList.appendChild(goalItem);
+      });
+      
+      // If no goals, show message
+      if (goals.length === 0) {
+        goalsList.innerHTML = '<div style="text-align: center; color: #888;">No goals set</div>';
+      }
+    }
+    
+    // Update achievements
+    function updateAchievements(achievements, lockedAchievements) {
+      const achievementsList = document.querySelector('.achievements-list');
+      if (!achievementsList) return;
+      
+      // Clear existing content
+      achievementsList.innerHTML = '';
+      
+      // Add unlocked achievements
+      achievements.forEach(achievement => {
+        const achievementItem = document.createElement('div');
+        achievementItem.className = 'achievement';
+        achievementItem.innerHTML = `
+          <div class="achievement-icon unlocked">
+            <i class="fas fa-${achievement.icon}"></i>
+          </div>
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-desc">${achievement.description}</div>
+        `;
+        
+        achievementsList.appendChild(achievementItem);
+      });
+      
+      // Add locked achievements
+      lockedAchievements.forEach(achievement => {
+        const percentage = Math.round((achievement.progress / achievement.requirement) * 100);
+        
+        const achievementItem = document.createElement('div');
+        achievementItem.className = 'achievement';
+        achievementItem.innerHTML = `
+          <div class="achievement-icon locked">
+            <i class="fas fa-${achievement.icon}"></i>
+          </div>
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-desc">${achievement.description} (${percentage}%)</div>
+        `;
+        
+        achievementsList.appendChild(achievementItem);
+      });
+    }
+    
+    // Update notifications
+    function updateNotifications(notifications) {
+      const notificationsList = document.querySelector('.notifications-list');
+      if (!notificationsList) return;
+      
+      // Clear existing content
+      notificationsList.innerHTML = '';
+      
+      // Sort notifications by timestamp (newest first)
+      const sortedNotifications = [...notifications].sort((a, b) => b.timestamp - a.timestamp);
+      
+      // Add notifications (limit to 3)
+      sortedNotifications.slice(0, 3).forEach(notification => {
+        const date = new Date(notification.timestamp);
+        const timeAgo = getTimeAgo(date);
+        
+        let actionsHtml = '';
+        if (notification.actions && notification.actions.length > 0) {
+          actionsHtml = '<div class="notification-actions">';
+          notification.actions.forEach(action => {
+            actionsHtml += `<div class="notification-action">${action}</div>`;
+          });
+          actionsHtml += '</div>';
+        }
+        
+        const notificationItem = document.createElement('div');
+        notificationItem.className = 'notification-item';
+        notificationItem.innerHTML = `
+          <div class="notification-icon ${notification.type}">
+            <i class="fas fa-${getIconForNotificationType(notification.type)}"></i>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">${notification.title}</div>
+            <div class="notification-desc">${notification.description}</div>
+            <div class="notification-time">${timeAgo}</div>
+            ${actionsHtml}
+          </div>
+        `;
+        
+        notificationsList.appendChild(notificationItem);
+      });
+      
+      // If no notifications, show message
+      if (notifications.length === 0) {
+        notificationsList.innerHTML = '<div style="text-align: center; color: #888;">No notifications</div>';
+      }
+    }
+    
+    // Helper function to get icon for activity type
+    function getIconForActivity(type) {
+      switch (type) {
+        case 'interview':
+          return 'microphone';
+        case 'resume':
+          return 'file-alt';
+        case 'chat':
+          return 'comments';
+        case 'login':
+          return 'sign-in-alt';
+        default:
+          return 'circle';
+      }
+    }
+    
+    // Helper function to get icon for notification type
+    function getIconForNotificationType(type) {
+      switch (type) {
+        case 'success':
+          return 'check-circle';
+        case 'error':
+          return 'exclamation-circle';
+        case 'warning':
+          return 'exclamation-triangle';
+        case 'info':
+          return 'info-circle';
+        case 'alert':
+          return 'bell';
+        default:
+          return 'bell';
+      }
+    }
+    
+    // Helper function to format time ago
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      
+      let interval = Math.floor(seconds / 31536000);
+      if (interval > 1) return interval + ' years ago';
+      if (interval === 1) return '1 year ago';
+      
+      interval = Math.floor(seconds / 2592000);
+      if (interval > 1) return interval + ' months ago';
+      if (interval === 1) return '1 month ago';
+      
+      interval = Math.floor(seconds / 86400);
+      if (interval > 1) return interval + ' days ago';
+      if (interval === 1) return '1 day ago';
+      
+      interval = Math.floor(seconds / 3600);
+      if (interval > 1) return interval + ' hours ago';
+      if (interval === 1) return '1 hour ago';
+      
+      interval = Math.floor(seconds / 60);
+      if (interval > 1) return interval + ' minutes ago';
+      if (interval === 1) return '1 minute ago';
+      
+      if (seconds < 10) return 'just now';
+      
+      return Math.floor(seconds) + ' seconds ago';
+    }
+  </script>
+</body>
+</html>

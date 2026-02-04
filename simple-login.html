@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterVU - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .navbar {
+      background-color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .logo {
+      color: #ff4d6d;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    .nav-links a {
+      color: #333;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    
+    .nav-links a:hover {
+      color: #ff4d6d;
+    }
+    
+    .container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .login-form {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      padding: 30px;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #333;
+      font-size: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #ff4d6d;
+    }
+    
+    .error-message {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 5px;
+      min-height: 20px;
+    }
+    
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #ff4d6d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #ff3c5f;
+    }
+    
+    button:disabled {
+      background-color: #ffb3c0;
+      cursor: not-allowed;
+    }
+    
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 15px;
+    }
+    
+    .register-link a {
+      color: #ff4d6d;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 5px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background-color: #2ecc71;
+    }
+    
+    .notification.error {
+      background-color: #e74c3c;
+    }
+    
+    .notification.info {
+      background-color: #3498db;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">InterVU</div>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="simple-register.html">Register</a>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <div class="login-form">
+      <h1>Welcome Back</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+          <div class="error-message" id="emailError"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+          <div class="error-message" id="passwordError"></div>
+        </div>
+        
+        <button type="submit" id="loginButton">Login</button>
+      </form>
+      
+      <div class="register-link">
+        Don't have an account? <a href="simple-register.html">Register</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="notification" id="notification"></div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Initialize Supabase client
+    const supabaseUrl = 'https://mcvjvsprehdetbbcfjph.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1jdmp2c3ByZWhkZXRiYmNmanBoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxNDkyMjAsImV4cCI6MjA2NDcyNTIyMH0.ptvadATEgnl0D7HbNDWW3kQxzWS1LSfeCKeRGay1-Pg';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // DOM elements
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginButton');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const notification = document.getElementById('notification');
+    
+    // Check if user just registered
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const registered = params.get('registered');
+      const email = params.get('email');
+      
+      if (registered === 'true' && email) {
+        emailInput.value = email;
+        showNotification('Registration successful! Please login.', 'success');
+      }
+    });
+    
+    // Handle form submission
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Reset error messages
+      emailError.textContent = '';
+      passwordError.textContent = '';
+      
+      // Get form values
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      
+      // Basic validation
+      let isValid = true;
+      
+      if (!email) {
+        emailError.textContent = 'Email is required';
+        isValid = false;
+      }
+      
+      if (!password) {
+        passwordError.textContent = 'Password is required';
+        isValid = false;
+      }
+      
+      if (!isValid) return;
+      
+      // Disable button and show loading state
+      loginButton.disabled = true;
+      loginButton.textContent = 'Logging in...';
+      
+      try {
+        // Sign in with Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        
+        // Login successful
+        showNotification('Login successful! Redirecting...', 'success');
+        
+        // Store user data
+        localStorage.setItem('user', JSON.stringify({
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.user_metadata?.full_name || 'User'
+        }));
+        
+        // Redirect to index page
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+        
+      } catch (error) {
+        console.error('Login error:', error);
+        
+        // Show error message
+        if (error.message.includes('Invalid login credentials')) {
+          showNotification('Invalid email or password', 'error');
+        } else if (error.message.includes('Email not confirmed')) {
+          // Try to sign in without email confirmation
+          try {
+            const { data, error: signUpError } = await supabase.auth.signUp({
+              email,
+              password,
+              options: { emailRedirectTo: window.location.origin }
+            });
+            
+            if (!signUpError) {
+              // Try signing in again
+              const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                email,
+                password
+              });
+              
+              if (!signInError) {
+                // Login successful
+                showNotification('Login successful! Redirecting...', 'success');
+                
+                // Store user data
+                localStorage.setItem('user', JSON.stringify({
+                  id: signInData.user.id,
+                  email: signInData.user.email,
+                  name: signInData.user.user_metadata?.full_name || 'User'
+                }));
+                
+                // Redirect to index page
+                setTimeout(() => {
+                  window.location.href = 'index.html';
+                }, 1500);
+                return;
+              }
+            }
+            
+            // If we get here, the bypass didn't work
+            showNotification('Login failed. Please try again.', 'error');
+          } catch (bypassError) {
+            showNotification('Login failed. Please try again.', 'error');
+          }
+        } else {
+          showNotification('An error occurred. Please try again.', 'error');
+        }
+      } finally {
+        // Reset button state
+        loginButton.disabled = false;
+        loginButton.textContent = 'Login';
+      }
+    });
+    
+    // Show notification
+    function showNotification(message, type) {
+      notification.textContent = message;
+      notification.className = `notification ${type} show`;
+      
+      // Hide notification after 5 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

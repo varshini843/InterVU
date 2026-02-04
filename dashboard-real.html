@@ -1,0 +1,1762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InterVU - User Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Chart.js for data visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #fef9f9, #eef2f3);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    /* Navbar */
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      position: relative;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #ff4d6d;
+      user-select: none;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.7rem;
+    }
+    .nav-right a {
+      font-weight: 500;
+      color: #555;
+      transition: color 0.3s ease;
+    }
+    .nav-right a:hover, .nav-right a.active {
+      color: #ff4d6d;
+    }
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ff4d6d;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+    }
+    .user-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 10px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      width: 200px;
+      padding: 1rem 0;
+      display: none;
+      z-index: 101;
+    }
+    .user-menu.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    .user-menu-item {
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.3s;
+    }
+    .user-menu-item:hover {
+      background: #f5f5f5;
+    }
+    .user-menu-item i {
+      color: #ff4d6d;
+      width: 20px;
+      text-align: center;
+    }
+    .user-menu-item.logout {
+      border-top: 1px solid #eee;
+      margin-top: 0.5rem;
+      color: #e63b5f;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Dashboard header */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .dashboard-title h1 {
+      color: #ff4d6d;
+      font-size: 2.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .dashboard-title p {
+      color: #666;
+    }
+    .dashboard-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    .date-filter {
+      display: flex;
+      align-items: center;
+      background: white;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .date-filter select {
+      border: none;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      color: #555;
+      padding-right: 1rem;
+      cursor: pointer;
+      outline: none;
+    }
+    .export-btn {
+      background: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      color: #555;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+    }
+    .export-btn:hover {
+      background: #f9f9f9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Stats cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .stat-title {
+      font-size: 1rem;
+      color: #666;
+      font-weight: 500;
+    }
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: white;
+    }
+    .stat-icon.interviews {
+      background: linear-gradient(45deg, #ff4d6d, #ff758c);
+    }
+    .stat-icon.resumes {
+      background: linear-gradient(45deg, #36b9cc, #1cc7d0);
+    }
+    .stat-icon.chats {
+      background: linear-gradient(45deg, #4e73df, #6610f2);
+    }
+    .stat-icon.time {
+      background: linear-gradient(45deg, #f6c23e, #ffd950);
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    .stat-change {
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .stat-change.positive {
+      color: #1cc88a;
+    }
+    .stat-change.negative {
+      color: #e74a3b;
+    }
+
+    /* Charts and widgets */
+    .dashboard-widgets {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .widget {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .widget-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .widget-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .widget-action {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .widget-action:hover {
+      background: #eee;
+      color: #ff4d6d;
+    }
+    .chart-container {
+      height: 300px;
+      position: relative;
+    }
+
+    /* Activity timeline */
+    .activity-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    .activity-item {
+      display: flex;
+      gap: 1rem;
+    }
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .activity-icon.interview {
+      background: linear-gradient(45deg, #ff4d6d, #ff758c);
+    }
+    .activity-icon.resume {
+      background: linear-gradient(45deg, #36b9cc, #1cc7d0);
+    }
+    .activity-icon.chat {
+      background: linear-gradient(45deg, #4e73df, #6610f2);
+    }
+    .activity-icon.login {
+      background: linear-gradient(45deg, #1cc88a, #20e3a0);
+    }
+    .activity-content {
+      flex: 1;
+    }
+    .activity-title {
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+    .activity-time {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    /* Bottom widgets */
+    .bottom-widgets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    /* Achievements */
+    .achievements-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+    }
+    .achievement {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .achievement-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .achievement-icon.unlocked {
+      background: linear-gradient(45deg, #ff4d6d, #ff758c);
+    }
+    .achievement-icon.locked {
+      background: #d1d3e2;
+      opacity: 0.7;
+    }
+    .achievement-icon.locked::after {
+      content: '\f023';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      bottom: -5px;
+      right: -5px;
+      background: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+      font-size: 0.8rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .achievement-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+    .achievement-desc {
+      font-size: 0.7rem;
+      color: #888;
+    }
+
+    /* Goals */
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .goal-item {
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    .goal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .goal-title {
+      font-weight: 500;
+    }
+    .goal-status {
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 20px;
+    }
+    .goal-status.in-progress {
+      background: #fff8e1;
+      color: #f6c23e;
+    }
+    .goal-status.completed {
+      background: #e8f5e9;
+      color: #1cc88a;
+    }
+    .goal-progress {
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+    .goal-progress-bar {
+      height: 100%;
+      border-radius: 4px;
+    }
+    .goal-progress-bar.interview {
+      background: linear-gradient(45deg, #ff4d6d, #ff758c);
+    }
+    .goal-progress-bar.resume {
+      background: linear-gradient(45deg, #36b9cc, #1cc7d0);
+    }
+    .goal-progress-bar.chat {
+      background: linear-gradient(45deg, #4e73df, #6610f2);
+    }
+    .goal-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    /* Notifications */
+    .notifications-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .notification-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      gap: 1rem;
+    }
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: white;
+      flex-shrink: 0;
+    }
+    .notification-icon.alert {
+      background: linear-gradient(45deg, #f6c23e, #ffd950);
+    }
+    .notification-icon.info {
+      background: linear-gradient(45deg, #4e73df, #6610f2);
+    }
+    .notification-icon.success {
+      background: linear-gradient(45deg, #1cc88a, #20e3a0);
+    }
+    .notification-content {
+      flex: 1;
+    }
+    .notification-title {
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+    .notification-desc {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    .notification-time {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .notification-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .notification-action {
+      font-size: 0.8rem;
+      color: #ff4d6d;
+      cursor: pointer;
+    }
+    .notification-action:hover {
+      text-decoration: underline;
+    }
+
+    /* Add Goal Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .modal-close {
+      font-size: 1.5rem;
+      color: #888;
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    .modal-close:hover {
+      color: #ff4d6d;
+    }
+    .modal-body {
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      color: #333;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #ff4d6d;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #555;
+    }
+    .btn-secondary:hover {
+      background: #eee;
+    }
+    .btn-primary {
+      background: #ff4d6d;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #ff3a5f;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,77,109,0.2);
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .toast.success {
+      border-left: 4px solid #1cc88a;
+    }
+    .toast.error {
+      border-left: 4px solid #e74a3b;
+    }
+    .toast.warning {
+      border-left: 4px solid #f6c23e;
+    }
+    .toast.info {
+      border-left: 4px solid #36b9cc;
+    }
+    .toast-icon {
+      font-size: 1.5rem;
+    }
+    .toast.success .toast-icon {
+      color: #1cc88a;
+    }
+    .toast.error .toast-icon {
+      color: #e74a3b;
+    }
+    .toast.warning .toast-icon {
+      color: #f6c23e;
+    }
+    .toast.info .toast-icon {
+      color: #36b9cc;
+    }
+    .toast-content {
+      flex: 1;
+    }
+    .toast-message {
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    /* Loading indicator */
+    .loading-indicator {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.8);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+    .loading-indicator.active {
+      display: flex;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #ff4d6d;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .dashboard-widgets {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .dashboard-actions {
+        width: 100%;
+      }
+      .date-filter, .export-btn {
+        flex: 1;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+      .bottom-widgets {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 576px) {
+      main {
+        padding: 1rem;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-right {
+        gap: 1rem;
+      }
+      .nav-right a:not(:last-child) {
+        display: none;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">InterVU</div>
+    <div class="nav-right">
+      <a href="index.html">Home</a>
+      <a href="interview.html">Interview Practice</a>
+      <a href="resume.html">Resume Builder</a>
+      <a href="chatbot.html">AI Assistant</a>
+      <a href="dashboard-real.html" class="active">Dashboard</a>
+      <div class="user-avatar" id="userAvatar">
+        <span id="userInitials">JS</span>
+        <div class="user-menu" id="userMenu">
+          <div class="user-menu-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </div>
+          <div class="user-menu-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </div>
+          <div class="user-menu-item logout" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="dashboard-header">
+      <div class="dashboard-title">
+        <h1>Dashboard</h1>
+        <p>Welcome back, <span id="userName">John Smith</span>! Here's your activity overview.</p>
+      </div>
+      <div class="dashboard-actions">
+        <div class="date-filter">
+          <select id="dateFilter">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="365">Last year</option>
+            <option value="all">All time</option>
+          </select>
+        </div>
+        <button class="export-btn" id="exportBtn">
+          <i class="fas fa-download"></i>
+          <span>Export Report</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">Interviews Completed</div>
+          <div class="stat-icon interviews">
+            <i class="fas fa-microphone"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="interviewCount">0</div>
+        <div class="stat-change positive" id="interviewChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">Resumes Created</div>
+          <div class="stat-icon resumes">
+            <i class="fas fa-file-alt"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="resumeCount">0</div>
+        <div class="stat-change positive" id="resumeChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">AI Chat Sessions</div>
+          <div class="stat-icon chats">
+            <i class="fas fa-comments"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="chatCount">0</div>
+        <div class="stat-change positive" id="chatChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <div class="stat-title">Total Time Spent</div>
+          <div class="stat-icon time">
+            <i class="fas fa-clock"></i>
+          </div>
+        </div>
+        <div class="stat-value" id="timeSpent">0h</div>
+        <div class="stat-change positive" id="timeChange">
+          <i class="fas fa-arrow-up"></i>
+          <span>0% from last period</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-widgets">
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Activity Overview</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Refresh" id="refreshActivityChart">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="widget-action" title="More options">
+              <i class="fas fa-ellipsis-v"></i>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Recent Activity</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="View all">
+              <i class="fas fa-external-link-alt"></i>
+            </div>
+          </div>
+        </div>
+        <div class="activity-timeline" id="activityTimeline">
+          <!-- Activity items will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-widgets">
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Performance Metrics</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Refresh" id="refreshPerformanceChart">
+              <i class="fas fa-sync-alt"></i>
+            </div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Achievements</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="View all">
+              <i class="fas fa-trophy"></i>
+            </div>
+          </div>
+        </div>
+        <div class="achievements-list" id="achievementsList">
+          <!-- Achievements will be dynamically added here -->
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Your Goals</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Add goal" id="addGoalBtn">
+              <i class="fas fa-plus"></i>
+            </div>
+          </div>
+        </div>
+        <div class="goals-list" id="goalsList">
+          <!-- Goals will be dynamically added here -->
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title">Notifications</div>
+          <div class="widget-actions">
+            <div class="widget-action" title="Mark all as read" id="markAllReadBtn">
+              <i class="fas fa-check-double"></i>
+            </div>
+          </div>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+          <!-- Notifications will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Goal Modal -->
+  <div class="modal" id="addGoalModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Add New Goal</div>
+        <div class="modal-close" id="closeGoalModal">&times;</div>
+      </div>
+      <div class="modal-body">
+        <form id="addGoalForm">
+          <div class="form-group">
+            <label for="goalTitle">Goal Title</label>
+            <input type="text" id="goalTitle" placeholder="e.g. Complete 10 practice interviews" required>
+          </div>
+          <div class="form-group">
+            <label for="goalCategory">Category</label>
+            <select id="goalCategory" required>
+              <option value="interview">Interview Practice</option>
+              <option value="resume">Resume Creation</option>
+              <option value="time">Time Spent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="goalTarget">Target</label>
+            <input type="number" id="goalTarget" min="1" placeholder="e.g. 10" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelGoalBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveGoalBtn">Save Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <div class="toast-icon" id="toastIcon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="toast-content">
+      <div class="toast-message" id="toastMessage">Notification message</div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div class="loading-indicator" id="loadingIndicator">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="auth-service.js"></script>
+  <script src="activity-tracker-real.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if user is logged in
+      const currentUser = JSON.parse(localStorage.getItem('intervuCurrentUser'));
+      if (!currentUser) {
+        // Redirect to login if not logged in
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // Set user name and initials
+      const userName = document.getElementById('userName');
+      const userInitials = document.getElementById('userInitials');
+      
+      if (userName) {
+        userName.textContent = currentUser.name || currentUser.email.split('@')[0];
+      }
+      
+      if (userInitials) {
+        // Get initials from full name or email
+        const fullName = currentUser.name || currentUser.email.split('@')[0];
+        const nameParts = fullName.split(' ');
+        const initials = nameParts.length > 1 
+          ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+          : nameParts[0].substring(0, 2).toUpperCase();
+        userInitials.textContent = initials;
+      }
+
+      // User menu toggle
+      const userAvatar = document.getElementById('userAvatar');
+      const userMenu = document.getElementById('userMenu');
+      
+      if (userAvatar && userMenu) {
+        userAvatar.addEventListener('click', function(e) {
+          e.stopPropagation();
+          userMenu.classList.toggle('active');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function() {
+          userMenu.classList.remove('active');
+        });
+      }
+
+      // Logout functionality
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function() {
+          try {
+            // Sign out using Supabase Auth
+            if (window.authService) {
+              await window.authService.signOut();
+            }
+          } catch (error) {
+            console.error('Error signing out:', error);
+          } finally {
+            // Remove user from localStorage
+            localStorage.removeItem('intervuCurrentUser');
+            // Redirect to login page
+            window.location.href = 'login.html';
+          }
+        });
+      }
+
+      // Load and display user data
+      loadDashboardData();
+
+      // Setup export functionality
+      const exportBtn = document.getElementById('exportBtn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+          exportUserData();
+        });
+      }
+
+      // Setup date filter
+      const dateFilter = document.getElementById('dateFilter');
+      if (dateFilter) {
+        dateFilter.addEventListener('change', function() {
+          loadDashboardData(parseInt(this.value));
+        });
+      }
+      
+      // Setup refresh buttons
+      const refreshActivityChart = document.getElementById('refreshActivityChart');
+      if (refreshActivityChart) {
+        refreshActivityChart.addEventListener('click', function() {
+          updateActivityChart(parseInt(dateFilter.value));
+        });
+      }
+      
+      const refreshPerformanceChart = document.getElementById('refreshPerformanceChart');
+      if (refreshPerformanceChart) {
+        refreshPerformanceChart.addEventListener('click', function() {
+          updatePerformanceChart(parseInt(dateFilter.value));
+        });
+      }
+      
+      // Setup add goal functionality
+      const addGoalBtn = document.getElementById('addGoalBtn');
+      const addGoalModal = document.getElementById('addGoalModal');
+      const closeGoalModal = document.getElementById('closeGoalModal');
+      const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+      const saveGoalBtn = document.getElementById('saveGoalBtn');
+      const addGoalForm = document.getElementById('addGoalForm');
+      
+      if (addGoalBtn && addGoalModal) {
+        addGoalBtn.addEventListener('click', function() {
+          addGoalModal.classList.add('active');
+        });
+        
+        closeGoalModal.addEventListener('click', function() {
+          addGoalModal.classList.remove('active');
+        });
+        
+        cancelGoalBtn.addEventListener('click', function() {
+          addGoalModal.classList.remove('active');
+        });
+        
+        saveGoalBtn.addEventListener('click', function() {
+          if (addGoalForm.checkValidity()) {
+            const title = document.getElementById('goalTitle').value;
+            const category = document.getElementById('goalCategory').value;
+            const target = parseInt(document.getElementById('goalTarget').value);
+            
+            // Add new goal
+            addNewGoal(title, category, target);
+            
+            // Close modal
+            addGoalModal.classList.remove('active');
+            
+            // Reset form
+            addGoalForm.reset();
+            
+            // Reload goals
+            updateGoalsDisplay();
+            
+            // Show success message
+            showToast('Goal added successfully!', 'success');
+          } else {
+            addGoalForm.reportValidity();
+          }
+        });
+      }
+      
+      // Setup mark all notifications as read
+      const markAllReadBtn = document.getElementById('markAllReadBtn');
+      if (markAllReadBtn) {
+        markAllReadBtn.addEventListener('click', function() {
+          markAllNotificationsAsRead();
+        });
+      }
+    });
+
+    // Load dashboard data
+    function loadDashboardData(days = 30) {
+      showLoading();
+      
+      // Get user activity data
+      const data = getUserActivityData(days);
+      
+      // Update stats display
+      updateStatsDisplay(data.stats, days);
+      
+      // Update activity chart
+      updateActivityChart(days);
+      
+      // Update performance chart
+      updatePerformanceChart(days);
+      
+      // Update goals display
+      updateGoalsDisplay();
+      
+      // Update achievements display
+      updateAchievementsDisplay();
+      
+      // Update recent activity
+      updateRecentActivity();
+      
+      // Update notifications display
+      updateNotificationsDisplay();
+      
+      hideLoading();
+    }
+
+    // Update stats display
+    function updateStatsDisplay(stats, days) {
+      const interviewCount = document.getElementById('interviewCount');
+      const resumeCount = document.getElementById('resumeCount');
+      const chatCount = document.getElementById('chatCount');
+      const timeSpent = document.getElementById('timeSpent');
+      
+      // Get comparison data
+      const comparison = getStatsComparison(days);
+      
+      // Update interview count
+      if (interviewCount) {
+        interviewCount.textContent = comparison.interviews.current;
+        updateStatChange('interviewChange', comparison.interviews.change);
+      }
+      
+      // Update resume count
+      if (resumeCount) {
+        resumeCount.textContent = comparison.resumes.current;
+        updateStatChange('resumeChange', comparison.resumes.change);
+      }
+      
+      // Update chat count
+      if (chatCount) {
+        chatCount.textContent = comparison.chats.current;
+        updateStatChange('chatChange', comparison.chats.change);
+      }
+      
+      // Update time spent
+      if (timeSpent) {
+        timeSpent.textContent = formatTime(comparison.timeSpent.current);
+        updateStatChange('timeChange', comparison.timeSpent.change);
+      }
+    }
+
+    // Update stat change display
+    function updateStatChange(elementId, changePercent) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      
+      // Update icon and class
+      const icon = element.querySelector('i');
+      if (changePercent >= 0) {
+        element.className = 'stat-change positive';
+        icon.className = 'fas fa-arrow-up';
+      } else {
+        element.className = 'stat-change negative';
+        icon.className = 'fas fa-arrow-down';
+      }
+      
+      // Update text
+      element.querySelector('span').textContent = `${Math.abs(changePercent)}% from last period`;
+    }
+
+    // Update activity chart
+    function updateActivityChart(days) {
+      const activityData = getActivityCountsByDay(days);
+      const ctx = document.getElementById('activityChart');
+      
+      // Destroy existing chart if it exists
+      if (window.activityChart) {
+        window.activityChart.destroy();
+      }
+      
+      // Prepare data for chart
+      const labels = activityData.map(d => d.date);
+      const interviewData = activityData.map(d => d.interviews);
+      const resumeData = activityData.map(d => d.resumes);
+      const chatData = activityData.map(d => d.chats);
+      
+      // Create new chart
+      window.activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Interviews',
+              data: interviewData,
+              borderColor: '#ff4d6d',
+              backgroundColor: 'rgba(255, 77, 109, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Resumes',
+              data: resumeData,
+              borderColor: '#36b9cc',
+              backgroundColor: 'rgba(54, 185, 204, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Chats',
+              data: chatData,
+              borderColor: '#4e73df',
+              backgroundColor: 'rgba(78, 115, 223, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Update performance chart
+    function updatePerformanceChart(days) {
+      const timeData = getTimeSpentByActivityType(days);
+      const ctx = document.getElementById('performanceChart');
+      
+      // Destroy existing chart if it exists
+      if (window.performanceChart) {
+        window.performanceChart.destroy();
+      }
+      
+      // Create new chart
+      window.performanceChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Interviews', 'Resumes', 'Chats'],
+          datasets: [{
+            data: [timeData.interviews, timeData.resumes, timeData.chats],
+            backgroundColor: ['#ff4d6d', '#36b9cc', '#4e73df'],
+            hoverBackgroundColor: ['#ff3a5f', '#1cc7d0', '#3a64d8'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${formatTime(value)} (${percentage}%)`;
+                }
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    // Update goals display
+    function updateGoalsDisplay() {
+      const goalsList = document.getElementById('goalsList');
+      if (!goalsList) return;
+      
+      // Get user data
+      const data = getUserActivityData();
+      
+      // Clear existing goals
+      goalsList.innerHTML = '';
+      
+      // Add goals
+      if (data.goals.length === 0) {
+        goalsList.innerHTML = '<div class="text-center">No goals set yet. Click the + button to add a goal.</div>';
+        return;
+      }
+      
+      data.goals.forEach(goal => {
+        const percentage = Math.round((goal.current / goal.target) * 100);
+        
+        const goalItem = document.createElement('div');
+        goalItem.className = 'goal-item';
+        goalItem.innerHTML = `
+          <div class="goal-header">
+            <div class="goal-title">${goal.title}</div>
+            <div class="goal-status ${goal.completed ? 'completed' : 'in-progress'}">${goal.completed ? 'Completed' : 'In Progress'}</div>
+          </div>
+          <div class="goal-progress">
+            <div class="goal-progress-bar ${goal.category}" style="width: ${percentage}%"></div>
+          </div>
+          <div class="goal-details">
+            <div>${goal.current}/${goal.target} ${goal.category === 'time' ? 'hours' : 'completed'}</div>
+            <div>${percentage}%</div>
+          </div>
+        `;
+        
+        goalsList.appendChild(goalItem);
+      });
+    }
+
+    // Update achievements display
+    function updateAchievementsDisplay() {
+      const achievementsList = document.getElementById('achievementsList');
+      if (!achievementsList) return;
+      
+      // Get user data
+      const data = getUserActivityData();
+      
+      // Clear existing achievements
+      achievementsList.innerHTML = '';
+      
+      // Add unlocked achievements
+      data.achievements.forEach(achievement => {
+        const achievementItem = document.createElement('div');
+        achievementItem.className = 'achievement';
+        achievementItem.innerHTML = `
+          <div class="achievement-icon unlocked">
+            <i class="fas fa-${achievement.icon}"></i>
+          </div>
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-desc">${achievement.description}</div>
+        `;
+        
+        achievementsList.appendChild(achievementItem);
+      });
+      
+      // Add locked achievements
+      data.lockedAchievements.forEach(achievement => {
+        const percentage = Math.round((achievement.progress / achievement.requirement) * 100);
+        
+        const achievementItem = document.createElement('div');
+        achievementItem.className = 'achievement';
+        achievementItem.innerHTML = `
+          <div class="achievement-icon locked">
+            <i class="fas fa-${achievement.icon}"></i>
+          </div>
+          <div class="achievement-name">${achievement.name}</div>
+          <div class="achievement-desc">${achievement.description} (${percentage}%)</div>
+        `;
+        
+        achievementsList.appendChild(achievementItem);
+      });
+      
+      // If no achievements, show message
+      if (data.achievements.length === 0 && data.lockedAchievements.length === 0) {
+        achievementsList.innerHTML = '<div class="text-center">No achievements yet. Start using the platform to earn badges!</div>';
+      }
+    }
+
+    // Update recent activity
+    function updateRecentActivity() {
+      const activityTimeline = document.getElementById('activityTimeline');
+      if (!activityTimeline) return;
+      
+      // Get recent activities
+      const activities = getRecentActivities(5);
+      
+      // Clear existing activities
+      activityTimeline.innerHTML = '';
+      
+      // Add activities
+      if (activities.length === 0) {
+        activityTimeline.innerHTML = '<div class="text-center">No activity recorded yet. Start using the platform!</div>';
+        return;
+      }
+      
+      activities.forEach(activity => {
+        const activityDate = new Date(activity.timestamp);
+        const timeAgo = getTimeAgo(activityDate);
+        
+        let title = '';
+        let iconClass = '';
+        
+        switch (activity.type) {
+          case 'interview':
+            title = 'Completed an interview practice session';
+            iconClass = 'interview';
+            break;
+          case 'resume':
+            title = 'Created a new resume';
+            iconClass = 'resume';
+            break;
+          case 'chat':
+            title = 'Had an AI chat session';
+            iconClass = 'chat';
+            break;
+          case 'login':
+            title = 'Logged into the platform';
+            iconClass = 'login';
+            break;
+        }
+        
+        const activityItem = document.createElement('div');
+        activityItem.className = 'activity-item';
+        activityItem.innerHTML = `
+          <div class="activity-icon ${iconClass}">
+            <i class="fas fa-${getIconForActivity(activity.type)}"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">${title}</div>
+            <div class="activity-time">${timeAgo}</div>
+          </div>
+        `;
+        
+        activityTimeline.appendChild(activityItem);
+      });
+    }
+
+    // Update notifications display
+    function updateNotificationsDisplay() {
+      const notificationsList = document.getElementById('notificationsList');
+      if (!notificationsList) return;
+      
+      // Get user data
+      const data = getUserActivityData();
+      
+      // Clear existing notifications
+      notificationsList.innerHTML = '';
+      
+      // Add notifications
+      if (data.notifications.length === 0) {
+        notificationsList.innerHTML = '<div class="text-center">No notifications yet.</div>';
+        return;
+      }
+      
+      // Sort notifications by timestamp (newest first)
+      const sortedNotifications = [...data.notifications].sort((a, b) => b.timestamp - a.timestamp);
+      
+      // Show only the 5 most recent notifications
+      sortedNotifications.slice(0, 5).forEach(notification => {
+        const notificationDate = new Date(notification.timestamp);
+        const timeAgo = getTimeAgo(notificationDate);
+        
+        const notificationItem = document.createElement('div');
+        notificationItem.className = 'notification-item';
+        notificationItem.dataset.id = notification.id;
+        
+        let actionsHtml = '';
+        if (notification.actions && notification.actions.length > 0) {
+          actionsHtml = '<div class="notification-actions">';
+          notification.actions.forEach(action => {
+            actionsHtml += `<div class="notification-action" data-action="${action}">${action}</div>`;
+          });
+          actionsHtml += '</div>';
+        }
+        
+        notificationItem.innerHTML = `
+          <div class="notification-icon ${notification.type}">
+            <i class="fas fa-${getIconForNotificationType(notification.type)}"></i>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">${notification.title}</div>
+            <div class="notification-desc">${notification.description}</div>
+            <div class="notification-time">${timeAgo}</div>
+            ${actionsHtml}
+          </div>
+        `;
+        
+        // Add event listeners to notification actions
+        notificationItem.querySelectorAll('.notification-action').forEach(actionBtn => {
+          actionBtn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const notificationId = this.closest('.notification-item').dataset.id;
+            
+            // Mark notification as read
+            markNotificationAsRead(notificationId);
+            
+            // Handle specific actions
+            if (action === 'View Achievements') {
+              // Scroll to achievements section
+              document.querySelector('.widget-title:contains("Achievements")').scrollIntoView({ behavior: 'smooth' });
+            } else if (action === 'View Goals') {
+              // Scroll to goals section
+              document.querySelector('.widget-title:contains("Your Goals")').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Remove notification from display
+            this.closest('.notification-item').remove();
+            
+            // Update notifications display
+            updateNotificationsDisplay();
+          });
+        });
+        
+        notificationsList.appendChild(notificationItem);
+      });
+    }
+
+    // Mark all notifications as read
+    function markAllNotificationsAsRead() {
+      // Get user data
+      const data = getUserActivityData();
+      
+      // Mark all as read
+      data.notifications.forEach(notification => {
+        markNotificationAsRead(notification.id);
+      });
+      
+      // Update notifications display
+      updateNotificationsDisplay();
+      
+      // Show success message
+      showToast('All notifications marked as read', 'success');
+    }
+
+    // Helper function to get icon for activity type
+    function getIconForActivity(type) {
+      switch (type) {
+        case 'interview':
+          return 'microphone';
+        case 'resume':
+          return 'file-alt';
+        case 'chat':
+          return 'comments';
+        case 'login':
+          return 'sign-in-alt';
+        default:
+          return 'circle';
+      }
+    }
+
+    // Helper function to get icon for notification type
+    function getIconForNotificationType(type) {
+      switch (type) {
+        case 'success':
+          return 'check-circle';
+        case 'error':
+          return 'exclamation-circle';
+        case 'warning':
+          return 'exclamation-triangle';
+        case 'info':
+          return 'info-circle';
+        default:
+          return 'bell';
+      }
+    }
+
+    // Helper function to format time ago
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      
+      let interval = Math.floor(seconds / 31536000);
+      if (interval > 1) return interval + ' years ago';
+      if (interval === 1) return '1 year ago';
+      
+      interval = Math.floor(seconds / 2592000);
+      if (interval > 1) return interval + ' months ago';
+      if (interval === 1) return '1 month ago';
+      
+      interval = Math.floor(seconds / 86400);
+      if (interval > 1) return interval + ' days ago';
+      if (interval === 1) return '1 day ago';
+      
+      interval = Math.floor(seconds / 3600);
+      if (interval > 1) return interval + ' hours ago';
+      if (interval === 1) return '1 hour ago';
+      
+      interval = Math.floor(seconds / 60);
+      if (interval > 1) return interval + ' minutes ago';
+      if (interval === 1) return '1 minute ago';
+      
+      if (seconds < 10) return 'just now';
+      
+      return Math.floor(seconds) + ' seconds ago';
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'info', duration = 3000) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon').querySelector('i');
+      
+      // Set message
+      toastMessage.textContent = message;
+      
+      // Set type
+      toast.className = 'toast show ' + type;
+      
+      // Set icon
+      toastIcon.className = 'fas';
+      switch (type) {
+        case 'success':
+          toastIcon.classList.add('fa-check-circle');
+          break;
+        case 'error':
+          toastIcon.classList.add('fa-exclamation-circle');
+          break;
+        case 'warning':
+          toastIcon.classList.add('fa-exclamation-triangle');
+          break;
+        case 'info':
+          toastIcon.classList.add('fa-info-circle');
+          break;
+      }
+      
+      // Show toast
+      toast.classList.add('show');
+      
+      // Hide after duration
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, duration);
+    }
+
+    // Show loading indicator
+    function showLoading() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      if (loadingIndicator) {
+        loadingIndicator.classList.add('active');
+      }
+    }
+
+    // Hide loading indicator
+    function hideLoading() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      if (loadingIndicator) {
+        loadingIndicator.classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>

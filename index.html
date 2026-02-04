@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="InterVU - Your AI-powered interview preparation platform. Practice interviews, build resumes, and enhance your skills with real-time feedback." />
+  <meta name="keywords" content="interview preparation, AI interview, resume builder, job search, career development" />
+  <meta name="author" content="InterVU Team" />
+  
+  <!-- Open Graph / Social Media Meta Tags -->
+  <meta property="og:title" content="InterVU - AI Interview Prep" />
+  <meta property="og:description" content="Practice interviews, build resumes, and enhance your skills with AI-powered feedback." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://intervu.ai" />
+  <meta property="og:image" content="https://intervu.ai/og-image.jpg" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  
+  <title>InterVU - AI Interview Prep</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #fef9f9, #eef2f3);
+      color: #333;
+      scroll-behavior: smooth;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    /* Navbar */
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      position: relative;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #ff4d6d;
+      user-select: none;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.7rem;
+    }
+    .nav-right a {
+      font-weight: 500;
+      color: #555;
+      transition: color 0.3s ease;
+    }
+    .nav-right a:hover {
+      color: #ff4d6d;
+    }
+    
+    /* Hamburger Menu */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      z-index: 101;
+    }
+    .bar {
+      width: 30px;
+      height: 3px;
+      background-color: #ff4d6d;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .hamburger-menu.active .bar:nth-child(1) {
+      transform: translateY(9px) rotate(45deg);
+    }
+    .hamburger-menu.active .bar:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger-menu.active .bar:nth-child(3) {
+      transform: translateY(-9px) rotate(-45deg);
+    }
+
+    /* Hero Section */
+    section.hero {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 4rem auto 2rem;
+      padding: 0 2rem;
+    }
+    .hero-text {
+      flex: 1 1 400px;
+      max-width: 600px;
+      animation: fadeInUp 1s ease forwards;
+    }
+    .hero-text h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+      color: #ff4d6d;
+      line-height: 1.1;
+    }
+    .hero-text p {
+      font-size: 1.25rem;
+      color: #555;
+      margin-bottom: 2rem;
+      line-height: 1.4;
+    }
+    .cta-button {
+      background-color: #ff4d6d;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 6px 12px rgba(255, 77, 109, 0.3);
+    }
+    .cta-button:hover {
+      background-color: #e63b5f;
+      transform: scale(1.05);
+      box-shadow: 0 8px 16px rgba(230, 59, 95, 0.5);
+    }
+    .cta-button .button-loader {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-left: 8px;
+    }
+    .cta-button.loading .button-text {
+      visibility: hidden;
+      opacity: 0;
+    }
+    .cta-button.loading .button-loader {
+      display: inline-block;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .hero img {
+      flex: 1 1 400px;
+      max-width: 400px;
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      animation: zoomIn 1s ease forwards;
+    }
+
+    /* Gallery Section */
+    section.image-gallery {
+      max-width: 1200px;
+      margin: 3rem auto 4rem;
+      padding: 0 2rem;
+    }
+    .gallery-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+    .gallery-container img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(255, 77, 109, 0.2);
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .gallery-container img:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 30px rgba(255, 77, 109, 0.35);
+    }
+    
+
+
+    /* Other sections */
+    section.services {
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      padding: 0 2rem;
+      text-align: center;
+    }
+    section.services h2 {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      color: #ff4d6d;
+    }
+    .services-container {
+      display: flex;
+      justify-content: space-around;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .service-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(255, 77, 109, 0.1);
+      padding: 2rem;
+      flex: 1 1 280px;
+      max-width: 350px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 14px 40px rgba(255, 77, 109, 0.2);
+    }
+    .service-card h3 {
+      color: #ff4d6d;
+      margin-bottom: 1rem;
+    }
+    .service-card p {
+      color: #555;
+      margin-bottom: 1.5rem;
+      line-height: 1.4;
+    }
+    .service-card button {
+      background-color: #ff4d6d;
+      border: none;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .service-card button:hover {
+      background-color: #e63b5f;
+    }
+
+    section.contact {
+      background: #fff0f2;
+      padding: 3rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto 4rem;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(255, 77, 109, 0.1);
+    }
+    section.contact h2 {
+      color: #ff4d6d;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .contact-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: space-between;
+    }
+    .contact-info {
+      flex: 1 1 300px;
+    }
+    .contact-info p {
+      font-size: 1.1rem;
+      color: #555;
+      margin: 0.5rem 0;
+      line-height: 1.4;
+    }
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .social-icon {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+    .social-links a:hover .social-icon {
+      transform: scale(1.2);
+    }
+
+
+    footer {
+      background: #fff;
+      color: #666;
+      font-size: 0.9rem;
+      user-select: none;
+      border-top: 1px solid #eee;
+      padding: 2rem 2rem 1rem;
+    }
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+    .footer-logo {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #ff4d6d;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 1rem;
+    }
+    .copyright {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+    
+    @media (max-width: 768px) {
+      .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.5rem;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hamburger-menu {
+        display: flex;
+      }
+      .nav-right {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        max-width: 300px;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        padding: 6rem 2rem 2rem;
+        transition: right 0.3s ease;
+        box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        z-index: 100;
+        gap: 1.5rem;
+        align-items: flex-start;
+      }
+      .nav-right.active {
+        right: 0;
+      }
+      
+      section.hero {
+        flex-direction: column;
+        text-align: center;
+        gap: 2rem;
+      }
+      .hero-text h1 {
+        font-size: 2rem;
+      }
+      .hero img {
+        max-width: 300px;
+      }
+      .gallery-container {
+        justify-content: center;
+      }
+      .gallery-container img {
+        width: 120px;
+        height: 120px;
+      }
+      .services-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .contact-container {
+        flex-direction: column;
+      }
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal {
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 90%;
+      animation: fadeInUp 0.3s ease;
+    }
+
+    .modal h2 {
+      color: #ff4d6d;
+      margin-bottom: 1rem;
+    }
+
+    .modal button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .modal button:hover {
+      background: #e63b5f;
+    }
+
+    .modal .close-btn {
+      background: #ccc;
+      color: #333;
+    }
+
+    .modal .close-btn:hover {
+      background: #bbb;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="logo">InterVU</div>
+    <button class="hamburger-menu" onclick="toggleMenu()" aria-label="Toggle menu" aria-expanded="false" aria-controls="navMenu">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </button>
+    <div class="nav-right" id="navMenu" role="menu">
+      <a onclick="scrollToSection('home')" role="menuitem" tabindex="0">Home</a>
+      <a onclick="scrollToSection('services')" role="menuitem" tabindex="0">Services</a>
+      <a onclick="scrollToSection('contact')" role="menuitem" tabindex="0">Contact</a>
+      <a href="login.html" role="menuitem" tabindex="0">Login</a>
+    </div>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="hero-text">
+     <h1 id="headline" data-translate="hero_title"><span id="typewriter-text"></span></h1>
+      <p id="subtext">Your smart companion for real-time interview practice, AI-powered resume building, and skill enhancement—anytime, anywhere.</p>
+     <button class="cta-button" onclick="openModalWithLoading()" data-translate="get_started">
+       <span class="button-text">Get Started</span>
+       <span class="button-loader"></span>
+     </button>
+      <a href="register.html" role="menuitem" tabindex="0">Register</a>
+    </div>
+    <img src="hero.jpeg" alt="AI Interview Illustration" />
+  </section>
+
+  <section class="services" id="services">
+    <h2>Our Key Features</h2>
+    <div class="services-container">
+      <div class="service-card">
+        <h3>Interview Preparation</h3>
+        <p>Answer career-specific questions and get instant AI feedback on your answers, body language, and voice.</p>
+        <button onclick="location.href='interview.html'">Start Practicing</button>
+      </div>
+      <div class="service-card">
+        <h3>Resume Builder</h3>
+        <p>Create modern, ATS-friendly resumes with multiple stylish templates.</p>
+        <button onclick="location.href='resume.html'">Build Resume</button>
+      </div>
+      <div class="service-card">
+        <h3>AI Chatbot</h3>
+        <p>Chat with AI to get instant answers, guidance, and interview tips.</p>
+        <button onclick="location.href='chatbot.html'">Chat Now</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="image-gallery" aria-label="Photo gallery">
+    <div class="gallery-container">
+      <img src="img1.jpeg" alt="Interview screen" />
+      <img src="img2.jpeg" alt="Resume builder" />
+      <img src="img3.jpeg" alt="AI chatbot" />
+      <img src="img4.jpeg" alt="Feedback screen" />
+    </div>
+  </section>
+  
+
+  
+
+
+  <section class="contact" id="contact">
+    <h2>Contact Details</h2>
+    <div class="contact-container">
+      <div class="contact-info">
+        <p>Email: intervu710@gmail.com</p>
+        <p>Phone: +91 97835 67901</p>
+        <p>Address: Hyderabad, Telangana, India</p>
+        <div class="social-links">
+          <a href="#" aria-label="Facebook"><i class="social-icon">📘</i></a>
+          <a href="#" aria-label="Twitter"><i class="social-icon">🐦</i></a>
+          <a href="#" aria-label="LinkedIn"><i class="social-icon">💼</i></a>
+          <a href="#" aria-label="Instagram"><i class="social-icon">📷</i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-logo">InterVU</div>
+      <div class="social-links footer-social">
+        <a href="#" aria-label="Facebook"><i class="social-icon">📘</i></a>
+        <a href="#" aria-label="Twitter"><i class="social-icon">🐦</i></a>
+        <a href="#" aria-label="LinkedIn"><i class="social-icon">💼</i></a>
+        <a href="#" aria-label="Instagram"><i class="social-icon">📷</i></a>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2025 InterVU. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Get Started Modal -->
+  <div id="getStartedModal" class="modal-overlay">
+    <div class="modal">
+      <h2>Choose Your Action</h2>
+      <button onclick="location.href='interview.html'">🎤 Practice Interview</button>
+      <button onclick="location.href='resume.html'">📄 Build Resume</button>
+      <button onclick="location.href='chatbot.html'">💬 Chat with AI</button>
+      <button class="close-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if user is logged in
+      const currentUser = JSON.parse(localStorage.getItem('user') || localStorage.getItem('intervuCurrentUser') || 'null');
+      const navRight = document.querySelector('.nav-right');
+      
+      if (currentUser && navRight) {
+        // Add dashboard link if user is logged in (support both storage keys)
+        const loginLink = navRight.querySelector('a[href="login.html"]');
+        const registerLink = navRight.querySelector('a[href="register.html"]');
+        
+        if (loginLink) {
+          // Replace login link with dashboard link
+          loginLink.href = 'dashboard-new.html';
+          loginLink.textContent = 'Dashboard';
+          
+          // Remove register link if it exists
+          if (registerLink) {
+            registerLink.remove();
+          }
+          
+          // Add logout link
+          const logoutLink = document.createElement('a');
+          logoutLink.href = '#';
+          logoutLink.textContent = 'Logout';
+          logoutLink.setAttribute('role', 'menuitem');
+          logoutLink.setAttribute('tabindex', '0');
+          logoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            localStorage.removeItem('user');
+            localStorage.removeItem('intervuCurrentUser');
+            window.location.reload();
+          });
+          navRight.appendChild(logoutLink);
+        }
+      }
+    });
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        // Close mobile menu if open
+        if (window.innerWidth <= 900) {
+          document.getElementById('navMenu').classList.remove('active');
+          document.querySelector('.hamburger-menu').classList.remove('active');
+        }
+      }
+    }
+    
+    // Toggle mobile menu
+    function toggleMenu() {
+      const navMenu = document.getElementById('navMenu');
+      const hamburger = document.querySelector('.hamburger-menu');
+      const isExpanded = hamburger.getAttribute('aria-expanded') === 'true';
+      
+      navMenu.classList.toggle('active');
+      hamburger.classList.toggle('active');
+      
+      // Update ARIA attributes
+      hamburger.setAttribute('aria-expanded', !isExpanded);
+      
+      // Set focus trap for accessibility
+      if (!isExpanded) {
+        setTimeout(() => {
+          const firstFocusableElement = navMenu.querySelector('a, button, input, select');
+          if (firstFocusableElement) {
+            firstFocusableElement.focus();
+          }
+        }, 100);
+      }
+    }
+
+    function translateSite(language) {
+      // Store the selected language in localStorage
+      localStorage.setItem('intervuLanguage', language);
+      
+      // Translation data (can be expanded)
+      const translations = {
+        'en': {
+          'hero_title': 'Ace Every Interview ⚡',
+          'get_started': 'Get Started'
+        },
+        'es': {
+          'hero_title': 'Domina Cada Entrevista ⚡',
+          'get_started': 'Comenzar'
+        },
+        'fr': {
+          'hero_title': 'Réussissez Chaque Entretien ⚡',
+          'get_started': 'Commencer'
+        },
+        'hi': {
+          'hero_title': 'हर इंटरव्यू में सफलता ⚡',
+          'get_started': 'शुरू करें'
+        }
+      };
+      
+      // Get all elements with data-translate attribute
+      const elements = document.querySelectorAll('[data-translate]');
+      
+      // Update text content based on selected language
+      elements.forEach(element => {
+        const key = element.getAttribute('data-translate');
+        if (translations[language] && translations[language][key]) {
+          if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
+            element.value = translations[language][key];
+          } else {
+            element.textContent = translations[language][key];
+          }
+        }
+      });
+    }
+
+    // Typewriter effect
+    const phrases = [
+      "Ace Every Interview ⚡",
+      "Build Killer Resumes 📄",
+      "Boost Your Confidence 🚀",
+      "Practice Like a Pro 🎯"
+    ];
+    let currentPhrase = 0;
+    let currentChar = 0;
+    let isDeleting = false;
+    const textElement = document.getElementById('typewriter-text');
+    const typingSpeed = 100;
+    const deletingSpeed = 50;
+    const pauseDuration = 1500;
+
+    function typeWriter() {
+      let currentText = phrases[currentPhrase];
+      if (!isDeleting) {
+        textElement.textContent = currentText.substring(0, currentChar + 1);
+        currentChar++;
+        if (currentChar === currentText.length) {
+          isDeleting = true;
+          setTimeout(typeWriter, pauseDuration);
+          return;
+        }
+      } else {
+        textElement.textContent = currentText.substring(0, currentChar - 1);
+        currentChar--;
+        if (currentChar === 0) {
+          isDeleting = false;
+          currentPhrase = (currentPhrase + 1) % phrases.length;
+        }
+      }
+      setTimeout(typeWriter, isDeleting ? deletingSpeed : typingSpeed);
+    }
+    typeWriter();
+
+    // Modal controls
+    const modal = document.getElementById('getStartedModal');
+
+    function openModalWithLoading() {
+      const button = document.querySelector('.cta-button');
+      button.classList.add('loading');
+      
+      // Simulate loading (remove in production and replace with actual loading logic)
+      setTimeout(() => {
+        button.classList.remove('loading');
+        openModal();
+      }, 800);
+    }
+    
+    function openModal() {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
+      
+      // Set focus to first button in modal for accessibility
+      setTimeout(() => {
+        const firstButton = modal.querySelector('button');
+        if (firstButton) {
+          firstButton.focus();
+        }
+      }, 100);
+    }
+
+    function closeModal() {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Close modal if clicking outside the modal content
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    // Accessibility: Close modal on Escape key
+    window.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && modal.style.display === 'flex') {
+        closeModal();
+      }
+    });
+    
+
+    
+
+  </script>
+
+</body>
+</html>

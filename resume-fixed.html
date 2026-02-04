@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InterVU - AI Resume Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="resume-fixed.js" defer></script>
+  <script src="template-selector-fixed.js" defer></script>
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #fef9f9, #eef2f3);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Navbar */
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      position: relative;
+      z-index: 100;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #ff4d6d;
+      user-select: none;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.7rem;
+    }
+    .nav-right a {
+      font-weight: 500;
+      color: #555;
+      transition: color 0.3s ease;
+      text-decoration: none;
+    }
+    .nav-right a:hover {
+      color: #ff4d6d;
+    }
+    
+    /* Main content */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+    
+    .page-title {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #ff4d6d;
+    }
+    
+    .page-title h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .page-title p {
+      font-size: 1.1rem;
+      color: #666;
+    }
+    
+    /* Resume builder layout */
+    .resume-builder {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    
+    /* Left side - Form inputs */
+    .resume-form {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      padding: 2rem;
+      overflow-y: auto;
+      max-height: 80vh;
+    }
+    
+    .form-section {
+      margin-bottom: 2rem;
+    }
+    
+    .form-section h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .form-section h3 i {
+      color: #ff4d6d;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #555;
+    }
+    
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #ff4d6d;
+    }
+    
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    /* Dynamic sections (education, experience, skills) */
+    .dynamic-section {
+      margin-top: 1rem;
+    }
+    
+    .dynamic-item {
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    
+    .remove-item {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: none;
+      border: none;
+      color: #ff4d6d;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    
+    .add-item-btn {
+      background: #f0f0f0;
+      border: 1px dashed #ccc;
+      color: #666;
+      padding: 0.7rem;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+    }
+    
+    .add-item-btn:hover {
+      background: #e8e8e8;
+      color: #ff4d6d;
+      border-color: #ff4d6d;
+    }
+    
+    /* Right side - Preview */
+    .resume-preview {
+      flex: 1;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .template-selector {
+      margin-bottom: 1.5rem;
+    }
+    
+    .template-selector h3 {
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      color: #555;
+    }
+    
+    /* Template selection buttons */
+    .template-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .template-btn {
+      padding: 0.5rem 1rem;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      border: 1px solid transparent;
+    }
+    
+    .template-btn:hover {
+      background: #e0e0e0;
+      color: #ff4d6d;
+      border-color: #ff4d6d;
+    }
+    
+    .template-btn.active {
+      background: #ff4d6d;
+      color: white;
+      box-shadow: 0 2px 5px rgba(255, 77, 109, 0.3);
+    }
+    
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .templates-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .templates-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    .template-item {
+      border: 2px solid #eee;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 10px;
+      height: 100px;
+      background: #f9f9f9;
+    }
+    
+    .template-item.active {
+      border-color: #ff4d6d;
+      box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.3);
+      background: #fff5f7;
+    }
+    
+    .template-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border-color: #ff4d6d;
+    }
+    
+    .template-icon {
+      font-size: 2rem;
+      color: #ff4d6d;
+      margin-bottom: 10px;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 77, 109, 0.1);
+      transition: all 0.3s;
+    }
+    
+    .template-item:hover .template-icon {
+      transform: scale(1.1);
+      background: rgba(255, 77, 109, 0.2);
+    }
+    
+    .template-item.active .template-icon {
+      background: rgba(255, 77, 109, 0.2);
+    }
+    
+    /* Custom colors for different template types */
+    #modern-template .template-icon { color: #4285F4; background: rgba(66, 133, 244, 0.1); }
+    #minimalist-template .template-icon { color: #34A853; background: rgba(52, 168, 83, 0.1); }
+    #creative-template .template-icon { color: #FBBC05; background: rgba(251, 188, 5, 0.1); }
+    #traditional-template .template-icon { color: #EA4335; background: rgba(234, 67, 53, 0.1); }
+    #elegant-template .template-icon { color: #9C27B0; background: rgba(156, 39, 176, 0.1); }
+    #vibrant-template .template-icon { color: #FF9800; background: rgba(255, 152, 0, 0.1); }
+    #executive-template .template-icon { color: #607D8B; background: rgba(96, 125, 139, 0.1); }
+    #tech-template .template-icon { color: #00BCD4; background: rgba(0, 188, 212, 0.1); }
+    #gradient-template .template-icon { color: #E91E63; background: rgba(233, 30, 99, 0.1); }
+    #bold-template .template-icon { color: #3F51B5; background: rgba(63, 81, 181, 0.1); }
+    
+    #modern-template:hover .template-icon { background: rgba(66, 133, 244, 0.2); }
+    #minimalist-template:hover .template-icon { background: rgba(52, 168, 83, 0.2); }
+    #creative-template:hover .template-icon { background: rgba(251, 188, 5, 0.2); }
+    #traditional-template:hover .template-icon { background: rgba(234, 67, 53, 0.2); }
+    #elegant-template:hover .template-icon { background: rgba(156, 39, 176, 0.2); }
+    #vibrant-template:hover .template-icon { background: rgba(255, 152, 0, 0.2); }
+    #executive-template:hover .template-icon { background: rgba(96, 125, 139, 0.2); }
+    #tech-template:hover .template-icon { background: rgba(0, 188, 212, 0.2); }
+    #gradient-template:hover .template-icon { background: rgba(233, 30, 99, 0.2); }
+    #bold-template:hover .template-icon { background: rgba(63, 81, 181, 0.2); }
+    
+    /* Print styles */
+    @media print {
+      body {
+        background: white;
+      }
+      
+      nav.navbar,
+      .page-title,
+      .resume-form,
+      .template-selector,
+      .action-buttons {
+        display: none !important;
+      }
+      
+      .resume-builder {
+        display: block;
+      }
+      
+      .resume-preview {
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+      }
+      
+      .preview-container {
+        box-shadow: none;
+        max-height: none;
+        overflow: visible;
+      }
+    }
+    
+    .template-name {
+      color: #333;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .template-item:hover .template-name {
+      color: #ff4d6d;
+    }
+    
+    .template-item.active .template-name {
+      color: #ff4d6d;
+      font-weight: 600;
+    }
+    
+    .preview-container {
+      background: white;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      margin: 0 auto;
+      transition: all 0.3s;
+      transform-origin: top center;
+      overflow-y: auto;
+      max-height: 70vh;
+      position: relative;
+      min-height: 800px;
+    }
+    
+    /* Action buttons */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s;
+    }
+    
+    .primary-btn {
+      background: #ff4d6d;
+      color: white;
+    }
+    
+    .primary-btn:hover {
+      background: #ff3a5f;
+    }
+    
+    .secondary-btn {
+      background: #f0f0f0;
+      color: #555;
+    }
+    
+    .secondary-btn:hover {
+      background: #e0e0e0;
+    }
+    
+    /* Download dropdown styles */
+    .download-dropdown {
+      position: relative;
+      flex: 1;
+    }
+    
+    .download-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-top: 0.5rem;
+      overflow: hidden;
+      display: none;
+      z-index: 100;
+    }
+    
+    .download-options.show {
+      display: block;
+    }
+    
+    .download-option {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      background: white;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.3s;
+    }
+    
+    .download-option:hover {
+      background: #f5f5f5;
+    }
+    
+    .download-option i {
+      color: #ff4d6d;
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Resume Templates */
+    .resume-template {
+      width: 100%;
+      min-height: 500px;
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
+    }
+    
+    .resume-template.active {
+      display: block;
+      position: relative;
+      opacity: 1;
+      z-index: 2;
+    }
+    
+    /* Modern Template */
+    .template-modern {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+    }
+    
+    .template-modern .resume-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid #4285F4;
+    }
+    
+    .template-modern .name-title {
+      flex: 2;
+    }
+    
+    .template-modern .name {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #4285F4;
+      margin-bottom: 0.5rem;
+    }
+    
+    .template-modern .title {
+      font-size: 1.2rem;
+      color: #555;
+    }
+    
+    .template-modern .contact-info {
+      flex: 1;
+      text-align: right;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    
+    .template-modern .section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .template-modern .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #4285F4;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .template-modern .item {
+      margin-bottom: 1.2rem;
+    }
+    
+    .template-modern .item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .template-modern .item-title {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .template-modern .item-subtitle {
+      color: #555;
+      margin-bottom: 0.3rem;
+    }
+    
+    .template-modern .item-date {
+      color: #777;
+      font-size: 0.9rem;
+    }
+    
+    .template-modern .item-description {
+      color: #555;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    .template-modern .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .template-modern .skill-item {
+      background: #f0f7ff;
+      color: #4285F4;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    
+    /* Minimalist Template */
+    .template-minimalist {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      padding: 2rem;
+    }
+    
+    .template-minimalist .resume-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .template-minimalist .name {
+      font-size: 2.2rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+    
+    .template-minimalist .title {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    
+    .template-minimalist .contact-info {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .template-minimalist .section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .template-minimalist .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    
+    .template-minimalist .item {
+      margin-bottom: 1.2rem;
+    }
+    
+    .template-minimalist .item-title {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    
+    .template-minimalist .item-subtitle {
+      font-style: italic;
+      margin-bottom: 0.3rem;
+      color: #555;
+    }
+    
+    .template-minimalist .item-date {
+      font-size: 0.9rem;
+      color: #777;
+      margin-bottom: 0.5rem;
+    }
+    
+    .template-minimalist .item-description {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #555;
+    }
+    
+    .template-minimalist .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    
+    .template-minimalist .skill-item {
+      font-size: 0.9rem;
+      color: #555;
+    }
+    
+    .template-minimalist .skill-item:not(:last-child)::after {
+      content: "•";
+      margin-left: 0.8rem;
+      color: #ccc;
+    }
+    
+    /* Creative Template */
+    .template-creative {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      background: linear-gradient(135deg, #fff8f8 0%, #f9f9ff 100%);
+      padding: 2rem;
+      border-radius: 10px;
+    }
+    
+    .template-creative .resume-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+      padding-bottom: 2rem;
+    }
+    
+    .template-creative .resume-header::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, #FBBC05, #EA4335);
+      border-radius: 3px;
+    }
+    
+    .template-creative .name {
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #FBBC05, #EA4335);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    
+    .template-creative .title {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    
+    .template-creative .contact-info {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .template-creative .section {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    
+    .template-creative .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #FBBC05;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+      position: relative;
+    }
+    
+    .template-creative .section-title::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #FBBC05, transparent);
+    }
+    
+    .template-creative .item {
+      margin-bottom: 1.5rem;
+      padding: 1.2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .template-creative .item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .template-creative .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.8rem;
+    }
+    
+    .template-creative .item-title {
+      font-weight: 600;
+      color: #EA4335;
+      font-size: 1.1rem;
+    }
+    
+    .template-creative .item-subtitle {
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+    
+    .template-creative .item-date {
+      color: #777;
+      font-size: 0.9rem;
+      background: #f9f9f9;
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+    }
+    
+    .template-creative .item-description {
+      color: #555;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    
+    .template-creative .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    
+    .template-creative .skill-item {
+      background: white;
+      color: #EA4335;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-size: 0.9rem;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .template-creative .skill-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Traditional Template */
+    .template-traditional {
+      font-family: 'Times New Roman', serif;
+      color: #333;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    
+    .template-traditional .resume-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #ccc;
+    }
+    
+    .template-traditional .name {
+      font-size: 2rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      letter-spacing: 1px;
+    }
+    
+    .template-traditional .title {
+      font-size: 1.1rem;
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+    
+    .template-traditional .contact-info {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    .template-traditional .section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .template-traditional .section-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.3rem;
+    }
+    
+    .template-traditional .item {
+      margin-bottom: 1.2rem;
+    }
+    
+    .template-traditional .item-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .template-traditional .item-title {
+      font-weight: bold;
+    }
+    
+    .template-traditional .item-subtitle {
+      font-style: italic;
+      margin-bottom: 0.3rem;
+    }
+    
+    .template-traditional .item-date {
+      font-size: 0.9rem;
+    }
+    
+    .template-traditional .item-description {
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    .template-traditional .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .template-traditional .skill-item {
+      font-size: 0.95rem;
+    }
+    
+    .template-traditional .skill-item:not(:last-child)::after {
+      content: "•";
+      margin-left: 1rem;
+      color: #999;
+    }
+    
+    /* Footer */
+    footer {
+      background: #fff;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 3rem;
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+    }
+    
+    footer p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    footer a {
+      color: #ff4d6d;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">InterVU</div>
+    <div class="nav-right">
+      <a href="index.html">Home</a>
+      <a href="dashboard-new.html">Dashboard</a>
+      <a href="interview.html">Interview</a>
+      <a href="resume.html" class="active">Resume</a>
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <main>
+    <div class="page-title">
+      <h1>AI Resume Builder</h1>
+      <p>Create a professional resume in minutes with our AI-powered tools</p>
+    </div>
+    
+    <div class="resume-builder">
+      <!-- Left Side - Form -->
+      <div class="resume-form">
+        <div class="form-section">
+          <h3><i class="fas fa-user"></i> Personal Information</h3>
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" placeholder="e.g., John Smith">
+          </div>
+          <div class="form-group">
+            <label for="jobTitle">Job Title</label>
+            <input type="text" id="jobTitle" placeholder="e.g., Software Engineer">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="e.g., john@example.com">
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" placeholder="e.g., (123) 456-7890">
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" placeholder="e.g., New York, NY">
+          </div>
+          <div class="form-group">
+            <label for="website">Website/LinkedIn</label>
+            <input type="text" id="website" placeholder="e.g., linkedin.com/in/johnsmith">
+          </div>
+        </div>
+        
+        <div class="form-section">
+          <h3><i class="fas fa-file-alt"></i> Summary</h3>
+          <div class="form-group">
+            <label for="summary">Professional Summary</label>
+            <textarea id="summary" placeholder="Write a brief summary of your professional background and key strengths..."></textarea>
+          </div>
+          <button type="button" class="enhance-btn secondary-btn" style="width: auto; margin-top: 0.5rem;">
+            <i class="fas fa-magic"></i> Enhance with AI
+          </button>
+        </div>
+        
+        <div class="form-section">
+          <h3><i class="fas fa-briefcase"></i> Work Experience</h3>
+          <div id="experienceItems" class="dynamic-section">
+            <!-- Experience items will be added here -->
+          </div>
+          <button type="button" id="addExperienceBtn" class="add-item-btn">
+            <i class="fas fa-plus"></i> Add Experience
+          </button>
+        </div>
+        
+        <div class="form-section">
+          <h3><i class="fas fa-graduation-cap"></i> Education</h3>
+          <div id="educationItems" class="dynamic-section">
+            <!-- Education items will be added here -->
+          </div>
+          <button type="button" id="addEducationBtn" class="add-item-btn">
+            <i class="fas fa-plus"></i> Add Education
+          </button>
+        </div>
+        
+        <div class="form-section">
+          <h3><i class="fas fa-tools"></i> Skills</h3>
+          <div class="form-group">
+            <label for="skills">Skills (comma separated)</label>
+            <textarea id="skills" placeholder="e.g., JavaScript, React, Node.js, HTML/CSS, Git, SQL"></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Side - Preview -->
+      <div class="resume-preview">
+        <div class="template-selector">
+          <h3>Choose a Template</h3>
+          
+          <div class="templates-grid" id="templates-grid">
+            <div class="template-item active" id="modern-template" data-template="modern" onclick="selectTemplate('modern')">
+              <div class="template-icon"><i class="fas fa-file-invoice"></i></div>
+              <span class="template-name">Modern</span>
+            </div>
+            <div class="template-item" id="minimalist-template" data-template="minimalist" onclick="selectTemplate('minimalist')">
+              <div class="template-icon"><i class="fas fa-file-alt"></i></div>
+              <span class="template-name">Minimalist</span>
+            </div>
+            <div class="template-item" id="creative-template" data-template="creative" onclick="selectTemplate('creative')">
+              <div class="template-icon"><i class="fas fa-paint-brush"></i></div>
+              <span class="template-name">Creative</span>
+            </div>
+            <div class="template-item" id="traditional-template" data-template="traditional" onclick="selectTemplate('traditional')">
+              <div class="template-icon"><i class="fas fa-file-contract"></i></div>
+              <span class="template-name">Traditional</span>
+            </div>
+            <div class="template-item" id="elegant-template" data-template="elegant" onclick="selectTemplate('elegant')">
+              <div class="template-icon"><i class="fas fa-feather-alt"></i></div>
+              <span class="template-name">Elegant</span>
+            </div>
+            <div class="template-item" id="vibrant-template" data-template="vibrant" onclick="selectTemplate('vibrant')">
+              <div class="template-icon"><i class="fas fa-palette"></i></div>
+              <span class="template-name">Vibrant</span>
+            </div>
+            <div class="template-item" id="executive-template" data-template="executive" onclick="selectTemplate('executive')">
+              <div class="template-icon"><i class="fas fa-briefcase"></i></div>
+              <span class="template-name">Executive</span>
+            </div>
+            <div class="template-item" id="tech-template" data-template="tech" onclick="selectTemplate('tech')">
+              <div class="template-icon"><i class="fas fa-laptop-code"></i></div>
+              <span class="template-name">Tech</span>
+            </div>
+            <div class="template-item" id="gradient-template" data-template="gradient" onclick="selectTemplate('gradient')">
+              <div class="template-icon"><i class="fas fa-fill-drip"></i></div>
+              <span class="template-name">Gradient</span>
+            </div>
+            <div class="template-item" id="bold-template" data-template="bold" onclick="selectTemplate('bold')">
+              <div class="template-icon"><i class="fas fa-bold"></i></div>
+              <span class="template-name">Bold</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="preview-container">
+          <!-- Modern Template -->
+          <div class="resume-template template-modern active" id="template-modern">
+            <div class="resume-header">
+              <div class="name-title">
+                <div class="name">John Smith</div>
+                <div class="title">Software Engineer</div>
+              </div>
+              <div class="contact-info">
+                <div>john@example.com</div>
+                <div>(123) 456-7890</div>
+                <div>New York, NY</div>
+                <div>linkedin.com/in/johnsmith</div>
+              </div>
+            </div>
+            
+            <div class="section">
+              <div class="section-title">Summary</div>
+              <p>Experienced software engineer with 5+ years of experience in full-stack development. Proficient in JavaScript, React, and Node.js. Passionate about creating efficient, scalable, and user-friendly applications.</p>
+            </div>
+            
+            <div class="section">
+              <div class="section-title">Experience</div>
+              
+              <div class="item">
+                <div class="item-header">
+                  <div class="item-title">Senior Developer</div>
+                  <div class="item-date">Jan 2020 - Present</div>
+                </div>
+                <div class="item-subtitle">Tech Solutions Inc., San Francisco, CA</div>
+                <div class="item-description">Led a team of 5 developers in building a customer-facing web application. Implemented CI/CD pipelines and improved application performance by 40%.</div>
+              </div>
+              
+              <div class="item">
+                <div class="item-header">
+                  <div class="item-title">Web Developer</div>
+                  <div class="item-date">Mar 2018 - Dec 2019</div>
+                </div>
+                <div class="item-subtitle">Digital Innovations, New York, NY</div>
+                <div class="item-description">Developed responsive websites for clients across various industries. Collaborated with designers to implement UI/UX improvements.</div>
+              </div>
+            </div>
+            
+            <div class="section">
+              <div class="section-title">Education</div>
+              
+              <div class="item">
+                <div class="item-header">
+                  <div class="item-title">Bachelor of Science in Computer Science</div>
+                  <div class="item-date">Sep 2014 - Jun 2018</div>
+                </div>
+                <div class="item-subtitle">University of California, Berkeley, CA</div>
+              </div>
+            </div>
+            
+            <div class="section">
+              <div class="section-title">Skills</div>
+              
+              <div class="skills-list">
+                <div class="skill-item">JavaScript</div>
+                <div class="skill-item">React</div>
+                <div class="skill-item">Node.js</div>
+                <div class="skill-item">HTML/CSS</div>
+                <div class="skill-item">Git</div>
+                <div class="skill-item">SQL</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <div class="download-dropdown">
+            <button class="action-btn primary-btn" id="downloadBtn">
+              <i class="fas fa-download"></i> Download
+            </button>
+            <div class="download-options">
+              <button class="download-option" id="downloadPdf">
+                <i class="far fa-file-pdf"></i> PDF Format
+              </button>
+              <button class="download-option" id="downloadWord">
+                <i class="far fa-file-word"></i> Word Format
+              </button>
+              <button class="download-option" id="downloadText">
+                <i class="far fa-file-alt"></i> Text Format
+              </button>
+              <button class="download-option" id="downloadLatex">
+                <i class="fas fa-code"></i> LaTeX Format
+              </button>
+            </div>
+          </div>
+          <button class="action-btn secondary-btn" id="printBtn">
+            <i class="fas fa-print"></i> Print
+          </button>
+          <button class="action-btn secondary-btn" id="shareBtn">
+            <i class="fas fa-share-alt"></i> Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2023 InterVU. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+  </footer>
+</body>
+</html>

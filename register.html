@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>InterVU - Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      user-select: none;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #ff4d6d;
+    }
+    .nav-right a {
+      margin-left: 1.5rem;
+      font-weight: 500;
+      color: #555;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+    .nav-right a:hover {
+      color: #ff4d6d;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+    .register-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 500px;
+      padding: 2.5rem;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      color: #333;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #555;
+    }
+    .input-group {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+    }
+    input {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      box-sizing: border-box;
+    }
+    input:focus {
+      outline: none;
+      border-color: #ff4d6d;
+    }
+    input.error {
+      border-color: #f44336;
+    }
+    .validation-message {
+      font-size: 0.8rem;
+      color: #f44336;
+      margin-top: 0.3rem;
+      min-height: 1rem;
+    }
+    .validation-message.success {
+      color: #4CAF50;
+    }
+    .email-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      margin-top: 5px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background-color: #f5f5f5;
+    }
+    .email-status.valid {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: #2e7d32;
+    }
+    .email-status.invalid {
+      background-color: rgba(244, 67, 54, 0.1);
+      color: #c62828;
+    }
+    .email-status.checking {
+      background-color: rgba(255, 152, 0, 0.1);
+      color: #ef6c00;
+    }
+    .input-group .verification-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #4CAF50;
+      display: none;
+    }
+    .input-group.verified .verification-icon {
+      display: block;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      cursor: pointer;
+      user-select: none;
+    }
+    .password-toggle:hover {
+      color: #777;
+    }
+    .password-strength {
+      height: 5px;
+      margin-top: 0.5rem;
+      border-radius: 5px;
+      background: #eee;
+      overflow: hidden;
+    }
+    .password-strength-meter {
+      height: 100%;
+      width: 0;
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+    .password-strength-text {
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+      color: #777;
+    }
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #ff4d6d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      position: relative;
+    }
+    button:hover {
+      background: #ff3c5f;
+    }
+    button:disabled {
+      background: #ffb3c0;
+      cursor: not-allowed;
+    }
+    button.loading {
+      color: transparent;
+    }
+    button.loading::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      margin: -10px 0 0 -10px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .login-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+    }
+    .login-link a {
+      color: #ff4d6d;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      color: #333;
+      padding: 1rem 1.5rem;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      transform: translateX(calc(100% + 20px));
+      transition: transform 0.3s ease;
+      z-index: 1000;
+      max-width: 350px;
+    }
+    .toast.show {
+      transform: translateX(0);
+    }
+    .toast.success {
+      border-left: 4px solid #4CAF50;
+    }
+    .toast.error {
+      border-left: 4px solid #f44336;
+    }
+    .toast.warning {
+      border-left: 4px solid #ff9800;
+    }
+    .toast-icon {
+      margin-right: 0.8rem;
+      font-size: 1.2rem;
+    }
+    .toast-icon.fa-check-circle {
+      color: #4CAF50;
+    }
+    .toast-icon.fa-exclamation-circle {
+      color: #f44336;
+    }
+    .toast-icon.fa-exclamation-triangle {
+      color: #ff9800;
+    }
+    .toast-message {
+      flex: 1;
+    }
+    .validation-icon {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">InterVU</div>
+    <div class="nav-right">
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="register-container">
+      <h1>Create an Account</h1>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <div class="input-group">
+            <i class="input-icon fas fa-user"></i>
+            <input type="text" id="name" placeholder="Your full name" required />
+          </div>
+          <div class="validation-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-group">
+            <i class="input-icon fas fa-envelope"></i>
+            <input type="email" id="email" placeholder="you@example.com" required />
+          </div>
+          <div class="validation-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-group">
+            <i class="input-icon fas fa-lock"></i>
+            <input type="password" id="password" placeholder="Create a password" required />
+            <div id="passwordToggle" class="password-toggle">
+              <i class="fas fa-eye"></i>
+            </div>
+          </div>
+          <div class="password-strength">
+            <div class="password-strength-meter"></div>
+          </div>
+          <div class="password-strength-text"></div>
+          <div class="validation-message"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="input-group">
+            <i class="input-icon fas fa-lock"></i>
+            <input type="password" id="confirmPassword" placeholder="Confirm your password" required />
+            <div id="confirmPasswordToggle" class="password-toggle">
+              <i class="fas fa-eye"></i>
+            </div>
+          </div>
+          <div class="validation-message"></div>
+        </div>
+
+        <button type="submit" id="registerButton">Create Account</button>
+      </form>
+
+      <div class="login-link">
+        Already have an account? <a href="login.html">Login</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast">
+    <i class="toast-icon fas"></i>
+    <div id="toastMessage" class="toast-message"></div>
+  </div>
+
+  <!-- Import Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Import our scripts in the correct order -->
+  <script src="supabase.js"></script>
+  <script src="database-service.js"></script>
+  <script src="auth-service.js"></script>
+  <script src="register.js"></script>
+</body>
+</html>
